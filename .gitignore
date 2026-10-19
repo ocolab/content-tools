@@ -6,6 +6,10 @@ motor/public/actual/
 clientes/*/
 trabajos/
 
+# Claves de API (FAL_KEY…): solo en motor/.env de cada máquina, nunca en el repositorio
+.env
+*.env
+
 # Sistema
 .DS_Store
 Thumbs.db

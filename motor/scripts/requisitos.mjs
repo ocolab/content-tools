@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { KIT, MOTOR, fallar, leerJson, trabajo, version } from "./comun.mjs";
+import { KIT, MOTOR, cargarClaves, fallar, leerJson, trabajo, version } from "./comun.mjs";
 import { CUANDO, Requisitos } from "./esquemas.mjs";
 
 const args = process.argv.slice(2);
@@ -38,10 +38,13 @@ function necesidades(arg) {
   return { siempre: "si", copy: copy?.aprobado ? "no" : "si", voz_en_off: voz, avatar, dualcast, publicar: "quizas" };
 }
 
-/** Claves de API: que la variable de entorno exista. El valor nunca se muestra ni se guarda. */
+/** Claves de API: que exista la variable (del sistema o de motor/.env). El valor nunca se muestra ni se guarda. */
+const delArchivo = cargarClaves();
 function revisarClave(req) {
   const faltan = req.herramientas.filter((v) => !process.env[v]);
-  return { ok: !faltan.length, detalle: faltan.length ? `falta la variable de entorno ${faltan.join(" y ")}` : `${req.herramientas.join(", ")} definida` };
+  if (faltan.length) return { ok: false, detalle: `falta ${faltan.join(" y ")} (en motor/.env o en las variables de entorno)` };
+  const origen = req.herramientas.every((v) => delArchivo.has(v)) ? "motor/.env" : "variable de entorno";
+  return { ok: true, detalle: `${req.herramientas.join(", ")} definida (${origen})` };
 }
 
 function revisarLocal(req) {
@@ -80,7 +83,7 @@ const motivo = (x) => (x.necesario === "si" ? "hace falta para este trabajo" : "
 console.log(arg ? `Requisitos de ${arg}\n` : "Requisitos del kit (pasá <cliente>/<id> para ver los de un trabajo)\n");
 const grupos = [
   ["Programas locales (revisados acá)", (x) => x.tipo === "local"],
-  ["Claves de API (variables de entorno, revisadas acá; el valor nunca se muestra)", (x) => x.tipo === "clave"],
+  ["Claves de API (motor/.env o variables de entorno, revisadas acá; el valor nunca se muestra)", (x) => x.tipo === "clave"],
   ["Conectores MCP y skills: el agente tiene que comprobar que estén conectados ANTES del paso", (x) => x.tipo === "mcp" || x.tipo === "skill"],
   ["Herramientas fuera del kit", (x) => x.tipo === "externo"],
 ];

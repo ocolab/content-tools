@@ -88,7 +88,7 @@
       "pasos": [5],
       "para": "Generar los clips con npm run clip: lip-sync con la toma de voz (HeyGen Avatar 4) y b-roll de imagen a video (Kling 2.5 Turbo Pro).",
       "herramientas": ["FAL_KEY"],
-      "como_conectar": "Crear una clave en fal.ai (Dashboard → API Keys) y guardarla como variable de entorno FAL_KEY del sistema (en Windows: «Editar las variables de entorno de esta cuenta»); reabrir la terminal. Nunca en el repositorio ni en el chat.",
+      "como_conectar": "Crear una clave en fal.ai (Dashboard → Keys) y ponerla en motor/.env como FAL_KEY=… (copiar motor/.env.ejemplo; git lo ignora) o como variable de entorno del sistema. Nunca en el repositorio ni en el chat.",
       "si_falta": "Avisar que falta la clave. npm run clip igual estima el costo sin ella. Ofrecer generar el clip afuera (Google Flow, ElevenLabs, Hedra…) con los prompts del plan y registrarlo con npm run clip -- <c>/<id> <escena> registrar.",
       "costo": "Cobra en fal.ai por segundo de video (≈ USD 2,50 un anuncio típico a 1080p): npm run clip estima antes y genera solo con --gastar, después del OK."
     },

@@ -47,9 +47,10 @@ el usuario. No inventes colores, afirmaciones, cifras ni botones.
 1. Al abrir el trabajo, corré `npm run requisitos -- <cliente>/<id>`. Si falta
    algo local (✗), resolvelo antes de seguir. Si falta una **clave de API**
    (✗ en «Claves de API», por ejemplo `FAL_KEY` para los clips de avatar),
-   decile al usuario cómo cargarla como variable de entorno (REQUISITOS.md,
-   «Cómo se carga una clave de API»). Nunca le pidas que la pegue en el chat
-   ni la escribas en un archivo; el script solo mira que exista.
+   decile al usuario cómo cargarla en `motor/.env` (que git ignora) o como
+   variable de entorno (REQUISITOS.md, «Cómo se carga una clave de API»).
+   Nunca le pidas que la pegue en el chat, no la escribas vos ni leas
+   `motor/.env`; el script solo mira que exista.
 2. Para cada conector MCP o skill que el trabajo necesita (marcados con !),
    comprobá que tengas sus herramientas: buscalas por el final del nombre
    (`creative_generate_speech`, `generate-image`, `ads_creative_upload_media`…),

@@ -237,7 +237,8 @@ pausa.
   `motor/node_modules/`, `motor/public/actual/` ni `trabajos/`; correr
   `npm ci` y después `npm run requisitos` en `motor/`, conectar los
   conectores MCP que se vayan a usar y, para generar clips de avatar, cargar
-  la clave de fal.ai en la variable de entorno `FAL_KEY` de esa máquina. En Claude, la skill está en
+  la clave de fal.ai como `FAL_KEY` en `motor/.env` (o como variable de entorno)
+  de esa máquina; `motor/.env` no viaja con el repositorio. En Claude, la skill está en
   `claude/SKILL.md`. No hace falta nada de afuera del kit: si un perfil de
   cliente apunta a un archivo de tokens que no viajó, `validar` avisa y sigue.
 - **Otro modelo**: alcanza con darle este archivo, `preguntas.md`,

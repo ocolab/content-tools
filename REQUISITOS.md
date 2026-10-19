@@ -33,15 +33,22 @@ obligatorios, pero pueden salir de su brand book (ver
 
 ## Cómo se carga una clave de API
 
-Las claves (por ahora solo `FAL_KEY`, para `npm run clip`) van en una
-**variable de entorno del sistema**, nunca en el repositorio, en un archivo
-del trabajo ni en el chat. `npm run requisitos` solo mira que exista; nunca
-muestra ni guarda el valor.
+Las claves (por ahora solo `FAL_KEY`, para `npm run clip`) van en
+**`motor/.env`** o en una **variable de entorno del sistema**; nunca en un
+archivo que se suba, en un archivo del trabajo ni en el chat. `npm run
+requisitos` solo mira que exista y dice de dónde salió; nunca muestra ni
+guarda el valor. Si está en los dos lados, gana la del sistema.
 
-- **Windows:** menú Inicio → «Editar las variables de entorno de esta cuenta»
-  → Nueva… → nombre `FAL_KEY`, valor la clave de fal.ai (Dashboard → API
-  Keys). Después, cerrar y volver a abrir la terminal (o la app de Claude).
-- **macOS o Linux:** `export FAL_KEY=…` en `~/.zshrc` o `~/.bashrc`.
+- **Con `motor/.env` (lo más simple):** copiar `motor/.env.ejemplo` como
+  `motor/.env`, abrirlo con un editor de texto y completar
+  `FAL_KEY=la-clave` (sin comillas ni espacios). `.gitignore` lo excluye:
+  no se sube nunca. No hace falta reabrir nada.
+- **Windows, como variable del sistema:** menú Inicio → «Editar las variables
+  de entorno de esta cuenta» → Nueva… → nombre `FAL_KEY`, valor la clave de
+  fal.ai (Dashboard → Keys). Después, cerrar y volver a abrir la terminal (o
+  la app de Claude).
+- **macOS o Linux, como variable del sistema:** `export FAL_KEY=…` en
+  `~/.zshrc` o `~/.bashrc`.
 
 Tener la clave no gasta nada: `npm run clip` solo cobra con `--gastar`, y
 antes muestra el costo estimado para pedir el OK.

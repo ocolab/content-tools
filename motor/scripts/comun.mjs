@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { parseEnv } from "node:util";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +12,24 @@ export const PUBLICO = path.join(MOTOR, "public");
 export const ACTUAL = path.join(PUBLICO, "actual");
 
 export const SONIDOS = ["tilde", "pop", "tecla", "barrido", "campana"];
+export const ARCHIVO_CLAVES = path.join(MOTOR, ".env");
+
+/**
+ * Carga las claves de API de motor/.env (si existe) sin pisar las variables
+ * de entorno del sistema. Nunca muestra los valores. Devuelve los nombres que
+ * vinieron del archivo, para decir de dónde salió cada clave.
+ */
+export function cargarClaves() {
+  if (!fs.existsSync(ARCHIVO_CLAVES)) return new Set();
+  const delArchivo = parseEnv(fs.readFileSync(ARCHIVO_CLAVES, "utf8"));
+  const usadas = new Set();
+  for (const [nombre, valor] of Object.entries(delArchivo)) {
+    if (process.env[nombre] || !valor) continue;
+    process.env[nombre] = valor;
+    usadas.add(nombre);
+  }
+  return usadas;
+}
 
 export function fallar(mensaje) {
   console.error(`✗ ${mensaje}`);

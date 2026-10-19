@@ -1,6 +1,6 @@
 // Clips de avatar y b-roll (paso 5). Lee plan-avatar.json, genera el clip de
 // una escena con una API de video (hoy fal.ai, con la clave en la variable de
-// entorno FAL_KEY) y lo registra en activos.json con herramienta, modelo,
+// entorno FAL_KEY o en motor/.env) y lo registra en activos.json con herramienta, modelo,
 // prompt, entradas y hash. Lo generado no se regenera en silencio: si el clip
 // ya está, hace falta --forzar.
 //
@@ -21,7 +21,7 @@
 //   npm run clip -- modelos
 import fs from "node:fs";
 import path from "node:path";
-import { correr, duracionMedia, escribirJson, fallar, hoy, leerJson, sha256, sha256Archivo, trabajo } from "./comun.mjs";
+import { cargarClaves, correr, duracionMedia, escribirJson, fallar, hoy, leerJson, sha256, sha256Archivo, trabajo } from "./comun.mjs";
 import { FPS, tiemposExplicativo } from "../src/calculo.js";
 import { validarTrabajo } from "./validar.mjs";
 
@@ -77,6 +77,7 @@ const POR_DEFECTO = { habla: "heygen-avatar4", broll: "kling-2.5-turbo-pro" };
 const FAL = "https://queue.fal.run";
 const ESPERA_MAXIMA_MIN = 20;
 
+cargarClaves(); // FAL_KEY puede venir del sistema o de motor/.env
 const usd = (n) => `USD ${n.toFixed(2)}`;
 const args = process.argv.slice(2);
 const opcion = (n) => {
@@ -318,7 +319,7 @@ if (accion === "registrar") {
 
 // gastar o retomar: hace falta la clave, que nunca se muestra ni se guarda.
 if (!process.env.FAL_KEY)
-  fallar("Falta la variable de entorno FAL_KEY con la clave de fal.ai (ver REQUISITOS.md). Se carga en el sistema, nunca en el repositorio ni en el chat.");
+  fallar("Falta la clave de fal.ai: FAL_KEY=… en motor/.env (que git ignora) o como variable de entorno del sistema (ver REQUISITOS.md). Nunca en el chat.");
 
 let pedido;
 if (accion === "retomar") {
