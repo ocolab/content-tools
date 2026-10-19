@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { parseEnv } from "node:util";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +12,24 @@ export const PUBLICO = path.join(MOTOR, "public");
 export const ACTUAL = path.join(PUBLICO, "actual");
 
 export const SONIDOS = ["tilde", "pop", "tecla", "barrido", "campana"];
+export const ARCHIVO_CLAVES = path.join(MOTOR, ".env");
+
+/**
+ * Carga las claves de API de motor/.env (si existe) sin pisar las variables
+ * de entorno del sistema. Nunca muestra los valores. Devuelve los nombres que
+ * vinieron del archivo, para decir de dónde salió cada clave.
+ */
+export function cargarClaves() {
+  if (!fs.existsSync(ARCHIVO_CLAVES)) return new Set();
+  const delArchivo = parseEnv(fs.readFileSync(ARCHIVO_CLAVES, "utf8"));
+  const usadas = new Set();
+  for (const [nombre, valor] of Object.entries(delArchivo)) {
+    if (process.env[nombre] || !valor) continue;
+    process.env[nombre] = valor;
+    usadas.add(nombre);
+  }
+  return usadas;
+}
 
 export function fallar(mensaje) {
   console.error(`✗ ${mensaje}`);
@@ -68,6 +87,37 @@ export function copiarDir(origen, destino) {
     if (e.isDirectory()) copiarDir(o, d);
     else if (e.isFile()) fs.copyFileSync(o, d);
   }
+}
+
+/** Clips (escenas «clip») que usa un spec explicativo, sin repetir. */
+export const clipsDelSpec = (spec) =>
+  spec?.plantilla === "explicativo" ? [...new Set(spec.contenido.escenas.filter((e) => e.tipo === "clip").map((e) => e.archivo))] : [];
+
+/** Segundos de un video o audio, medidos con ffprobe (el stream de video si lo hay). */
+export function duracionMedia(archivo) {
+  const leer = (args) => Number(correr("ffprobe", ["-v", "error", ...args, "-of", "csv=p=0", archivo]).stdout.trim().split(/\r?\n/)[0]);
+  const video = leer(["-select_streams", "v:0", "-show_entries", "stream=duration"]);
+  return Number.isFinite(video) && video > 0 ? video : leer(["-show_entries", "format=duration"]);
+}
+
+/**
+ * Arma public/actual/ con lo que leen las plantillas: capturas, voz, archivos
+ * de la marca y clips del trabajo. Devuelve los segundos de cada clip.
+ */
+export function prepararActual(t, spec) {
+  fs.rmSync(ACTUAL, { recursive: true, force: true });
+  copiarDir(path.join(t.dir, "capturas"), path.join(ACTUAL, "capturas"));
+  copiarDir(path.join(t.dir, "audio"), path.join(ACTUAL, "audio"));
+  copiarDir(path.join(dirCliente(t.cliente), "activos"), path.join(ACTUAL, "marca"));
+  const clips = {};
+  for (const archivo of clipsDelSpec(spec)) {
+    const origen = path.join(t.dir, archivo);
+    if (!fs.existsSync(origen)) continue;
+    fs.mkdirSync(path.dirname(path.join(ACTUAL, archivo)), { recursive: true });
+    fs.copyFileSync(origen, path.join(ACTUAL, archivo));
+    clips[archivo] = duracionMedia(origen);
+  }
+  return clips;
 }
 
 /** Texto sin tildes ni mayúsculas, para comparar palabras. */

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "id": "ejemplo-avatar",
+  "plantilla": "explicativo",
+  "formatos": ["9x16", "4x5"],
+  "capturas": [],
+  "audio": { "musica": null, "efectos": true },
+  "voz": { "usar": true },
+  "contenido": {
+    "escenas": [
+      { "tipo": "clip", "archivo": "activos/gancho.mp4", "voz": "COMPLETAR: lo mismo que plan-avatar.json › escenas › gancho › guion" },
+      { "tipo": "clip", "archivo": "activos/muestra.mp4", "voz": "COMPLETAR: lo mismo que plan-avatar.json › escenas › muestra › guion" },
+      { "tipo": "cierre", "titulo": "COMPLETAR", "boton": "COMPLETAR", "voz": "COMPLETAR" }
+    ]
+  }
+}

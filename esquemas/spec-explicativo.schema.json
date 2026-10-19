@@ -458,6 +458,48 @@
                   "voz"
                 ],
                 "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "clip"
+                  },
+                  "archivo": {
+                    "type": "string",
+                    "pattern": "^activos\\/[a-z0-9-]+\\.mp4$",
+                    "description": "clip de avatar o b-roll (npm run clip); tiene que estar registrado en activos.json"
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  },
+                  "encuadre": {
+                    "description": "dónde se recorta el clip si no tiene la forma del lienzo, en %: 0 = se ve la parte de arriba, 100 = la de abajo; por defecto 40",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "audio_del_clip": {
+                    "description": "true: suena el audio del clip (solo en videos sin voz en off). Por defecto el clip va mudo y suena la toma de voz",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "archivo",
+                  "voz"
+                ],
+                "additionalProperties": false
               }
             ]
           }

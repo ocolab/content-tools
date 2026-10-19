@@ -1,6 +1,6 @@
 ---
 name: fabrica-creativos
-description: Crea anuncios en video (Reels, historias, feed, TikTok) siguiendo el proceso reproducible de fabrica-creativos/ — brief con preguntas fijas, copy con la skill cro, elección del tipo de anuncio (animación o avatar humano digital), prompts de imagen, video y voz, render determinista con Remotion y control de calidad. Usala cuando pidan un anuncio en video, un creativo animado, un video con avatar, un brief de anuncio, renderizar o revisar un video de anuncio, o sumar un cliente o una herramienta al catálogo de creativos.
+description: Crea anuncios en video (Reels, historias, feed, TikTok) siguiendo el proceso reproducible de fabrica-creativos/ — brief con preguntas fijas, copy con la skill cro, elección del tipo de anuncio (animación o avatar humano digital), prompts de imagen, video y voz, render determinista con Remotion y control de calidad, y después del primer video de cada empresa, una rutina diaria con el setup ya hecho. Usala cuando pidan un anuncio en video, un creativo animado, un video con avatar, un brief de anuncio, renderizar o revisar un video de anuncio, o sumar un cliente o una herramienta al catálogo de creativos.
 ---
 
 # Fábrica de creativos
@@ -45,7 +45,12 @@ el usuario. No inventes colores, afirmaciones, cifras ni botones.
 ## Requisitos y conectores MCP (obligatorio)
 
 1. Al abrir el trabajo, corré `npm run requisitos -- <cliente>/<id>`. Si falta
-   algo local (✗), resolvelo antes de seguir.
+   algo local (✗), resolvelo antes de seguir. Si falta una **clave de API**
+   (✗ en «Claves de API», por ejemplo `FAL_KEY` para los clips de avatar),
+   decile al usuario cómo cargarla en `motor/.env` (que git ignora) o como
+   variable de entorno (REQUISITOS.md, «Cómo se carga una clave de API»).
+   Nunca le pidas que la pegue en el chat, no la escribas vos ni leas
+   `motor/.env`; el script solo mira que exista.
 2. Para cada conector MCP o skill que el trabajo necesita (marcados con !),
    comprobá que tengas sus herramientas: buscalas por el final del nombre
    (`creative_generate_speech`, `generate-image`, `ads_creative_upload_media`…),
@@ -96,19 +101,65 @@ solo cuando lo apruebe. Sin `cro` disponible, usá `catalogo/prompts/copy.md`.
   ElevenLabs (estimar costo, pedir OK, una sola toma, transcripción con tiempos
   y `npm run voz -- … registrar`). Nunca reintentes una generación llamando de
   nuevo: cobra otra vez.
-- **Avatar**: armá `plan-avatar.json` con la ficha del tipo y
-  `catalogo/prompts/imagen.md` y `video.md`. Si hay una herramienta de imagen
-  conectada (por ejemplo Canva `generate-image`), usala con las referencias
-  numeradas; registrá cada archivo en `activos.json`. El video con avatar se
-  genera con herramientas externas (`catalogo/herramientas.md`).
+- **Avatar** (paso 5 de `PROCESO.md`):
+  1. `npm run nuevo -- <c>/<id> --tipo <tipo>` crea `plan-avatar.json` y el
+     `spec.json` de montaje (un explicativo con escenas `clip`). Armá el plan
+     con la ficha del tipo y `catalogo/prompts/imagen.md` y `video.md`; la
+     `voz` de cada escena `clip` es el mismo guion que la escena del plan.
+  2. Antes de producir, `npm run clip -- <c>/<id> todas` estima el costo de
+     todos los clips sin gastar: mostrale el total al usuario junto con el
+     plan, para que apruebe las dos cosas.
+  3. Imágenes: si hay una herramienta conectada (por ejemplo Canva
+     `generate-image`), usala con las referencias numeradas y registrá cada
+     archivo en `activos.json`.
+  4. Voz: **una sola toma** para todo el anuncio, como la voz en off
+     (`npm run voz`). De ahí sale el tramo de cada clip que habla.
+  5. Clips, de a uno: `npm run clip -- <c>/<id> <escena>` (sin gastar) muestra
+     modelo, entradas y costo, y deja el tramo de voz en
+     `activos/entradas/<escena>.wav`. Pedí OK con ese costo y recién ahí
+     `… <escena> --gastar`. Si la espera se corta, `… <escena> retomar`:
+     **nunca** vuelvas a correr `--gastar`, porque cobra otra vez. Mirá cada
+     clip (extraé cuadros con ffmpeg y leelos con Read) antes de seguir.
+  6. Un clip hecho afuera (Google Flow, ElevenLabs, Hedra) se registra con
+     `npm run clip -- <c>/<id> <escena> registrar --video <archivo> --herramienta "<nombre>"`.
+  7. `npm run render` y `npm run qc`, como cualquier explicativo. El dualcast
+     (dos voces) se sigue montando en un editor.
+
+## Rutina diaria (paso 9): proponela vos
+
+El kit sirve para cualquier empresa, así que la rutina se arma con lo que
+necesita cada una, en `clientes/<c>/rutina.json`.
+
+1. **Cuándo:** apenas una empresa tiene su primer video terminado y entregado
+   (paso 8), si no tiene `rutina.json`. `npm run qc` lo recuerda con una ★.
+   No esperes a que te la pidan.
+2. **Proponer:** `npm run rutina -- <c> proponer` (con `--bases` si hay
+   trabajos de prueba que no sirven de base). Mostrale al usuario la
+   propuesta y hacé las preguntas R1 a R7 de `preguntas.md` con
+   AskUserQuestion: piezas, días, hora del aviso, temas, tope diario, cómo
+   aprueba el copy y cómo se publica. Ajustá `rutina.json` con sus respuestas.
+3. **Aprobar:** solo con su OK, `npm run rutina -- <c> aprobar --por "<nombre>"`.
+4. **Aviso diario (opcional):** ofrecé una tarea programada (skill
+   `schedule`) a la `hora_aviso` y en los `dias` de la rutina, que corra
+   `npm run rutina -- <c> hoy`, proponga el copy del día con el tema que le
+   toca (sin repetir los ganchos de `npm run rutina -- <c> estado`) y espere
+   el OK. La tarea nunca gasta ni publica sola.
+5. **Cada día:** el trabajo `<fecha>-<pieza>` sigue el proceso desde el paso
+   3: copy nuevo y OK, `spec.json` y `plan-avatar.json` con ese copy, costo
+   del día (`npm run clip -- … todas` y la voz con `estimate_only`) dentro del
+   tope y con OK, una toma de voz, clips, render, qc y entrega según
+   `publicacion`. `npm run clip --gastar` frena si se pasa el tope.
 
 ## Reglas
 
 - `npm run validar` antes de gastar créditos, renderizar o mostrar un video.
   Con errores no se sigue.
-- Pedí OK explícito antes de gastar créditos y antes de subir algo a Meta
-  (siempre en pausa). Un OK no vale para el paso siguiente.
+- Pedí OK explícito antes de gastar créditos (ElevenLabs, `npm run clip --gastar`)
+  y antes de subir algo a Meta (siempre en pausa), con el costo estimado. Un
+  OK vale para lo que se mostró (un clip, o una lista de clips con su total),
+  no para el paso siguiente ni para repetir una generación.
 - Nada se afirma sin estar en `marca.json`; el avatar no da testimonio; se
   declara el uso de IA.
 - Al terminar, mandá los MP4 de `salida/` y las hojas de `qc/` con
-  SendUserFile, y decí qué quedó sin verificar.
+  SendUserFile, y decí qué quedó sin verificar. Si es el primer video de la
+  empresa y no tiene rutina, proponela (paso 9).

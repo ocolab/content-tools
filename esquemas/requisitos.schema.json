@@ -24,11 +24,12 @@
             "type": "string",
             "enum": [
               "local",
+              "clave",
               "skill",
               "mcp",
               "externo"
             ],
-            "description": "local: programa en la máquina; skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"
+            "description": "local: programa en la máquina; clave: variable de entorno con la clave de una API (se revisa que exista, nunca se muestra); skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"
           },
           "cuando": {
             "type": "string",
@@ -37,6 +38,7 @@
               "copy",
               "voz_en_off",
               "avatar",
+              "dualcast",
               "publicar"
             ],
             "description": "en qué trabajos hace falta"
@@ -63,7 +65,7 @@
             "items": {
               "type": "string"
             },
-            "description": "comandos, skills o herramientas MCP; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"
+            "description": "comandos, skills, herramientas MCP o (tipo clave) nombres de variables de entorno; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"
           },
           "como_conectar": {
             "type": "string",

@@ -26,7 +26,7 @@
         "salida": "activos/gancho.png"
       },
       "video": {
-        "herramienta": "COMPLETAR",
+        "herramienta": "heygen-avatar4",
         "prompt": "A quick move in at the start that lands on a close-up just as the first word is spoken. Then the person faces the lens and says: \"{{guion}}\". {{voz}} {{acento}} One uninterrupted shot: no edits, no scene changes; once the camera stops moving, it stays on that framing.",
         "referencias": ["activos/gancho.png"],
         "salida": "activos/gancho.mp4"
@@ -44,7 +44,7 @@
         "salida": "activos/muestra.png"
       },
       "video": {
-        "herramienta": "COMPLETAR",
+        "herramienta": "heygen-avatar4",
         "prompt": "Camera fixed in place. The person and the device look exactly as in the reference, and whatever is on the screen does not change or move. They hold the phone up to the lens, look down at it briefly, look back at the camera and say: \"{{guion}}\". {{voz}} {{acento}} One uninterrupted shot: no edits, no scene changes.",
         "referencias": ["activos/muestra.png"],
         "salida": "activos/muestra.mp4"

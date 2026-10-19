@@ -99,7 +99,7 @@ El dolor con las palabras que usaría ese cliente, no con las nuestras.
 | Opción | Qué es | A favor | En contra |
 |---|---|---|---|
 | `animacion` | Texto, interfaz y capturas animadas; voz en off opcional | Sale igual cada vez, sin costo por generación, se ve la marca | Menos cercano |
-| `avatar` | Una persona generada con IA que habla a cámara o aparece en escenas | Cercanía, confianza, formato nativo de Reels | Cuesta créditos, hay que cuidar que la cara no cambie, se declara IA |
+| `avatar` | Una persona generada con IA que habla a cámara o aparece en escenas | Cercanía, confianza, formato nativo de Reels | Cuesta créditos (los clips, unos USD 2,50 por anuncio en fal.ai a octubre de 2026, más la voz y los repetidos; `npm run clip -- <c>/<id> todas` da el número), hay que cuidar que la cara no cambie, se declara IA |
 | `mixto` | Gancho con avatar (3 s) y explicación animada | Lo mejor de los dos | Más pasos |
 
 **6. Solo si eligió avatar o mixto:** (`avatar`)
@@ -127,3 +127,34 @@ Si es una regla permanente, va a `marca.json` (`copy.prohibidas` o
 
 El tipo de anuncio (`tipo`) **no se pregunta**: se elige en el paso 4 con la
 tabla de [catalogo/LEEME.md](catalogo/LEEME.md) y se le propone al cliente.
+
+## Rutina diaria (paso 9, después del primer video)
+
+Se hacen sobre la propuesta de `npm run rutina -- <c> proponer`, mostrándole
+al cliente qué sale de cada trabajo terminado. Cada respuesta va a
+`clientes/<c>/rutina.json`.
+
+**R1. ¿Qué querés publicar cada día?** (`piezas`)
+Una o varias piezas, cada una a partir de un video ya terminado: el avatar que
+habla, un loop de 6 s, un explicativo… Con sus formatos y plataformas.
+
+**R2. ¿Qué días?** (`dias`)
+Por ejemplo de lunes a viernes, o tres veces por semana.
+
+**R3. ¿A qué hora querés recibir el borrador del día?** (`hora_aviso`)
+O ninguna, si se arma a pedido.
+
+**R4. ¿Sobre qué temas o pilares vamos rotando?** (`temas`)
+Servicios, preguntas frecuentes, objeciones, casos de uso, fechas del rubro.
+Solo lo que se pueda afirmar con `marca.json`.
+
+**R5. ¿Cuánto es lo máximo que se puede gastar por día?** (`presupuesto_diario_usd`)
+Se propone lo que costó el primer video, con margen para repetir una toma. Es
+un tope: cada gasto igual se aprueba.
+
+**R6. ¿Cuándo aprobás el copy?** (`aprobacion_copy`)
+`cada_dia` o `semanal` (la semana entera de una vez).
+
+**R7. ¿Cómo se publica?** (`publicacion`)
+`entregar_mp4` (lo sube el cliente) o `subir_en_pausa` (se sube a su cuenta en
+pausa, con su OK). Nunca se publica solo.

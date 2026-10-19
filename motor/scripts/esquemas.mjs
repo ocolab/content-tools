@@ -11,6 +11,7 @@ const texto = (max) => z.string().trim().min(1).max(max);
 export const FORMATOS = ["9x16", "4x5"];
 export const OBJETIVOS = ["reconocimiento", "trafico", "mensajes", "clientes_potenciales", "ventas"];
 export const ESTILOS = ["animacion", "avatar", "mixto"];
+export const PLATAFORMAS = ["instagram_reels", "instagram_feed", "instagram_stories", "facebook_feed", "facebook_reels", "facebook_stories", "tiktok"];
 export const TIPOS = {
   "loop-6s": "animacion",
   explicativo: "animacion",
@@ -140,14 +141,16 @@ export const Brief = z
         acento: texto(200),
       })
       .nullable(),
-    plataformas: z
-      .array(z.enum(["instagram_reels", "instagram_feed", "instagram_stories", "facebook_feed", "facebook_reels", "facebook_stories", "tiktok"]))
-      .min(1),
+    plataformas: z.array(z.enum(PLATAFORMAS)).min(1),
     formatos: z.array(z.enum(FORMATOS)).min(1),
     duracion_max: z.number().int().min(5).max(60),
     musica: z.enum(["sin_musica", "biblioteca_meta", "archivo_propio", "generada"]),
     tipo: z.enum(Object.keys(TIPOS)).nullable().describe("se completa en el paso 3"),
     notas: z.string().nullable(),
+    rutina: z
+      .strictObject({ pieza: slug, fecha, tema: texto(120) })
+      .optional()
+      .describe("solo en los trabajos que abre la rutina diaria (npm run rutina -- <c> hoy)"),
   })
   .superRefine((b, ctx) => {
     if (b.estilo !== "animacion" && !b.avatar)
@@ -201,6 +204,7 @@ const Base = {
   visual: z.strictObject({ variante: slug }).optional().describe("variante de marca.json elegida en las propuestas"),
 };
 const ruta = z.string().regex(/^capturas\/[a-z0-9-]+\.png$/);
+export const archivoClip = z.string().regex(/^activos\/[a-z0-9-]+\.mp4$/, "un MP4 en activos/ del trabajo, por ejemplo activos/gancho.mp4");
 const linea = (max) => texto(max).describe("*asteriscos* marcan el énfasis");
 
 const Par = z.strictObject({ es: texto(28), en: texto(28) });
@@ -248,6 +252,14 @@ const Escena = z.discriminatedUnion("tipo", [
     duracion,
   }),
   z.strictObject({ tipo: z.literal("cierre"), titulo: texto(72), boton: texto(26), voz, duracion }),
+  z.strictObject({
+    tipo: z.literal("clip"),
+    archivo: archivoClip.describe("clip de avatar o b-roll (npm run clip); tiene que estar registrado en activos.json"),
+    voz,
+    duracion,
+    encuadre: z.number().min(0).max(100).optional().describe("dónde se recorta el clip si no tiene la forma del lienzo, en %: 0 = se ve la parte de arriba, 100 = la de abajo; por defecto 40"),
+    audio_del_clip: z.boolean().optional().describe("true: suena el audio del clip (solo en videos sin voz en off). Por defecto el clip va mudo y suena la toma de voz"),
+  }),
 ]);
 
 export const SpecExplicativo = z.strictObject({
@@ -318,6 +330,7 @@ export const CUANDO = {
   copy: "mientras el copy no esté aprobado",
   voz_en_off: "si el video lleva voz en off",
   avatar: "si el anuncio lleva avatar",
+  dualcast: "si el anuncio es dualcast (dos voces)",
   publicar: "si el video se sube desde acá",
 };
 export const Requisitos = z.strictObject({
@@ -326,18 +339,74 @@ export const Requisitos = z.strictObject({
     z.strictObject({
       id: slug,
       nombre: texto(80),
-      tipo: z.enum(["local", "skill", "mcp", "externo"]).describe("local: programa en la máquina; skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"),
+      tipo: z
+        .enum(["local", "clave", "skill", "mcp", "externo"])
+        .describe("local: programa en la máquina; clave: variable de entorno con la clave de una API (se revisa que exista, nunca se muestra); skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"),
       cuando: z.enum(Object.keys(CUANDO)).describe("en qué trabajos hace falta"),
       obligatorio: z.boolean().describe("true: sin esto el paso no se puede hacer como está escrito"),
       pasos: z.array(z.number().int().min(1).max(8)),
       para: texto(200),
-      herramientas: z.array(z.string()).describe("comandos, skills o herramientas MCP; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"),
+      herramientas: z.array(z.string()).describe("comandos, skills, herramientas MCP o (tipo clave) nombres de variables de entorno; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"),
       como_conectar: texto(400),
       si_falta: texto(500).describe("qué hace el agente: avisar, pedir que se conecte y ofrecer la alternativa"),
       costo: texto(200).nullable(),
     })
   ),
 });
+
+// ---------------------------------------------------------------- clientes/<c>/rutina.json
+// La rutina diaria de una empresa: qué se produce cada día a partir de trabajos
+// ya terminados (el «setup»). Se propone después del primer video entregado
+// (npm run rutina -- <c> proponer) y la aprueba el cliente. Cada empresa
+// define sus piezas, días, temas, tope de gasto, aprobación y publicación.
+export const DIAS = ["lun", "mar", "mie", "jue", "vie", "sab", "dom"];
+const PiezaRutina = z.strictObject({
+  id: slug.describe("nombre corto de la pieza, por ejemplo «avatar» o «loop»"),
+  base: slug.describe("id de un trabajo terminado de la empresa (trabajos/<c>/<base>) que se copia cada día"),
+  tipo: z.enum(Object.keys(TIPOS)),
+  formatos: z.array(z.enum(FORMATOS)).min(1),
+  plataformas: z.array(z.enum(PLATAFORMAS)).min(1),
+  reutiliza: z
+    .array(z.string().regex(/^(activos|capturas)\/[^/]+$/))
+    .describe("archivos de la base que se usan tal cual todos los días (la presentadora, capturas); lo demás se genera de nuevo"),
+});
+export const Rutina = z
+  .strictObject({
+    version: z.literal(1),
+    cliente: slug,
+    activa: z.boolean().describe("false hasta que el cliente la apruebe; npm run rutina hoy no abre nada si está en false"),
+    aprobada: z
+      .strictObject({ por: texto(80), fecha })
+      .nullable()
+      .describe("quién aprobó la rutina y cuándo"),
+    dias: z.array(z.enum(DIAS)).min(1).describe("qué días se produce"),
+    hora_aviso: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/)
+      .nullable()
+      .describe("hora local a la que se arma el borrador del día y se avisa (recordatorio o tarea programada); null = sin aviso"),
+    piezas: z.array(PiezaRutina).min(1).max(5),
+    temas: z.array(texto(120)).min(1).describe("pilares o temas que rotan día a día; los define la empresa"),
+    presupuesto_diario_usd: z
+      .number()
+      .min(0)
+      .nullable()
+      .describe("tope de gasto por día (créditos de voz, clips, imágenes); no reemplaza el OK de cada gasto. null = sin tope"),
+    aprobacion_copy: z
+      .enum(["cada_dia", "semanal"])
+      .describe("cuándo aprueba el cliente el copy: el del día, o el de toda la semana de una vez"),
+    publicacion: z
+      .enum(["entregar_mp4", "subir_en_pausa"])
+      .describe("nunca se publica sola: se entregan los MP4, o se suben a la cuenta del cliente en pausa con su OK"),
+    notas: z.string().nullable(),
+  })
+  .superRefine((r, ctx) => {
+    const ids = r.piezas.map((p) => p.id);
+    ids.forEach((id, i) => {
+      if (ids.indexOf(id) !== i) ctx.addIssue({ code: "custom", path: ["piezas", i, "id"], message: `la pieza «${id}» está repetida` });
+    });
+    if (r.activa && !r.aprobada) ctx.addIssue({ code: "custom", path: ["aprobada"], message: "una rutina activa necesita quién la aprobó y cuándo" });
+  });
 
 export const ESQUEMAS = {
   marca: Marca,
@@ -348,4 +417,5 @@ export const ESQUEMAS = {
   "plan-avatar": PlanAvatar,
   activos: Activos,
   requisitos: Requisitos,
+  rutina: Rutina,
 };

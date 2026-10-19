@@ -17,9 +17,13 @@ testimonio.
 
 1. Hoja de personaje ([imagen.md](../prompts/imagen.md) §3) e imagen base (§1);
    si hace falta, dos o tres ángulos (§4) para alternar planos.
-2. Un clip por escena con la plantilla «A cámara» de
+2. Una sola toma de voz para todo el guion ([voz.md](../prompts/voz.md)).
+3. Un clip por escena con `npm run clip`: lip-sync de la imagen de la escena
+   con su tramo de la toma (la voz es la misma en todos los clips). Con un
+   modelo que acepta prompt, la plantilla «A cámara» de
    [video.md](../prompts/video.md), variando el movimiento de cámara.
-3. Registrar en `activos.json` y montar en un editor con subtítulos y la marca.
+4. Montaje en el motor: `spec.json` con una escena `clip` por clip y una
+   escena `cierre` con el botón; `npm run render`.
 
 ## Qué mirar
 

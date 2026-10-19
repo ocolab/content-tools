@@ -92,7 +92,8 @@ export type EscenaCapturas = ConVoz & { tipo: "capturas"; archivos: string[]; et
 export type EscenaLista = ConVoz & { tipo: "lista"; items: string[] };
 export type EscenaBilingue = ConVoz & { tipo: "bilingue"; sitio: string; titulo: Par; partes: Par[] };
 export type EscenaCierre = ConVoz & { tipo: "cierre"; titulo: string; boton: string };
-export type Escena = EscenaGancho | EscenaBuscador | EscenaArmado | EscenaCapturas | EscenaLista | EscenaBilingue | EscenaCierre;
+export type EscenaClip = ConVoz & { tipo: "clip"; archivo: string; encuadre?: number; audio_del_clip?: boolean };
+export type Escena = EscenaGancho | EscenaBuscador | EscenaArmado | EscenaCapturas | EscenaLista | EscenaBilingue | EscenaCierre | EscenaClip;
 
 export type SpecExplicativo = Base & {
   plantilla: "explicativo";
@@ -103,4 +104,6 @@ export type SpecExplicativo = Base & {
 export type Palabra = { texto: string; inicio: number; fin: number };
 
 export type PropsLoop = { spec: SpecLoop; marca: Marca };
-export type PropsExplicativo = { spec: SpecExplicativo; marca: Marca; palabras: Palabra[] | null };
+/** Segundos de cada clip (archivo → duración), medidos con ffprobe antes del render. */
+export type DuracionesClip = Record<string, number>;
+export type PropsExplicativo = { spec: SpecExplicativo; marca: Marca; palabras: Palabra[] | null; clips?: DuracionesClip };

@@ -92,4 +92,11 @@ for (const [formato, r] of Object.entries(manifiesto.formatos)) {
 
 escribirJson(path.join(qcDir, "qc.json"), informe);
 console.log(`\nEstado: ${informe.estado}. Falta la revisión visual de las hojas (checklist en PROCESO.md, paso 7).`);
+// Paso 9: con el primer video de la empresa terminado, el setup ya está hecho.
+if (informe.estado !== "rechazado") {
+  const rutina = path.join(dirCliente(t.cliente), "rutina.json");
+  if (!fs.existsSync(rutina))
+    console.log(`\n★ ${t.cliente} ya tiene un video terminado y todavía no tiene rutina. Después de entregarlo, proponé la rutina diaria con este setup: npm run rutina -- ${t.cliente} proponer (PROCESO.md, paso 9).`);
+  else if (leerJson(path.join(t.dir, "brief.json")).rutina) console.log(`\nRutina: npm run rutina -- ${t.cliente} estado`);
+}
 process.exit(informe.estado === "rechazado" ? 1 : 0);

@@ -18,6 +18,13 @@ npm run render -- mi-cliente/mi-video  # [--formatos 9x16]
 npm run qc -- mi-cliente/mi-video
 npm run estudio -- mi-cliente/mi-video # vista previa en el navegador
 npm run voz -- mi-cliente/mi-video texto
+npm run clip -- mi-cliente/mi-video todas   # costo estimado de los clips de avatar (no gasta)
+npm run clip -- mi-cliente/mi-video gancho --gastar   # genera un clip en fal.ai (cobra; FAL_KEY)
+npm run clip -- mi-cliente/mi-video gancho registrar --video clip.mp4 --herramienta "Google Flow"
+npm run rutina -- mi-cliente proponer     # rutina diaria desde los videos terminados (paso 9)
+npm run rutina -- mi-cliente aprobar --por "Nombre"
+npm run rutina -- mi-cliente hoy          # abre los trabajos del día (--hasta para la semana)
+npm run rutina -- mi-cliente estado       # en qué paso está cada día, gasto y ganchos usados
 npm run esquemas                         # exporta ../esquemas/*.schema.json
 ```
 
@@ -27,16 +34,19 @@ npm run esquemas                         # exporta ../esquemas/*.schema.json
 |---|---|
 | `src/plantillas/` | `Loop6s.tsx` y `Explicativo.tsx` |
 | `src/escenas/Escenas.tsx` | Escenas del explicativo: gancho, buscador, armado, capturas, lista, cierre |
+| `src/escenas/Clip.tsx` | Escena `clip`: un MP4 de avatar o b-roll a pantalla completa, con logo y subtítulos de la marca |
 | `src/componentes/Base.tsx` | Piezas comunes: superficie, casilla, botón, celular, navegador, efectos |
 | `src/tiempo.ts` | 30 fps, lienzos y zonas seguras, animaciones y tiempos por escena |
 | `src/marca.tsx` | Carga la fuente del cliente y reparte la marca |
 | `scripts/esquemas.mjs` | Esquemas de todos los archivos del proceso (fuente de verdad) |
 | `scripts/validar.mjs` | Validación de un trabajo |
 | `scripts/render.mjs`, `qc.mjs` | Render y control de calidad |
+| `scripts/clip.mjs` | Clips de avatar y b-roll: estima, genera en fal.ai, retoma o registra, y anota en `activos.json` |
+| `scripts/rutina.mjs` | Rutina diaria de cada empresa: propone, aprueba, abre los trabajos del día y muestra el estado |
 | `public/sonidos/` | Efectos generados con fórmulas fijas (`sonidos.json` tiene recetas y hashes) |
 | `public/musica/` | Pistas con licencia anotada en `LICENCIAS.md` |
 | `public/actual/` | Se rearma en cada render con los archivos del trabajo; no se edita |
-| `ejemplos/` | Specs y plan de partida para `npm run nuevo` |
+| `ejemplos/` | Specs, plan y montaje de partida para `npm run nuevo`, y un ejemplo de `rutina.json` |
 
 ## Por qué el mismo spec da el mismo video
 
@@ -46,7 +56,9 @@ npm run esquemas                         # exporta ../esquemas/*.schema.json
   lo revisa).
 - 30 fps, PNG por cuadro, h264 crf 18, yuv420p; metadatos fijos (`bitexact`).
 - La fuente se carga antes de dibujar nada, así las medidas de texto no cambian.
-- Las capturas y la voz se generan una vez y quedan registradas con su hash.
+- Las capturas, la voz y los clips se generan una vez y quedan registrados con
+  su hash. Los clips se leen cuadro por cuadro (`OffthreadVideo`), así que
+  también salen idénticos en cada render.
 - `render` guarda en `salida/manifiesto.json` el hash de cada entrada (spec,
   marca, capturas, plantillas, sonidos, música, voz) y una huella cuadro por
   cuadro de cada video. Si las entradas no cambiaron, avisa si el video salió
