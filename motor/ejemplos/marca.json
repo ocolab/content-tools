@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "nombre": "COMPLETAR",
+  "fuente_tokens": null,
+  "colores": {
+    "fondo": "COMPLETAR",
+    "superficie": "COMPLETAR",
+    "marco": "COMPLETAR",
+    "linea": "COMPLETAR",
+    "texto": "COMPLETAR",
+    "texto_suave": "COMPLETAR",
+    "enfasis": "COMPLETAR",
+    "sobre_enfasis": "COMPLETAR",
+    "grafico": "COMPLETAR",
+    "acento": "COMPLETAR",
+    "acento_texto": "COMPLETAR",
+    "boton_fondo": "COMPLETAR",
+    "boton_texto": "COMPLETAR"
+  },
+  "paleta": [],
+  "tipografia": {
+    "familia": "COMPLETAR",
+    "archivo": "activos/COMPLETAR.ttf",
+    "pesos": "400 700",
+    "peso_texto": 400,
+    "peso_ui": 500,
+    "peso_titulo": 600,
+    "peso_enfasis": 700,
+    "tracking_titulo": "-0.02em"
+  },
+  "forma": {
+    "radio": 8,
+    "borde": 1,
+    "sombra": "0 4px 10px rgba(0,0,0,0.06)"
+  },
+  "logo": {
+    "archivo": "activos/COMPLETAR.png",
+    "ancho": 1,
+    "alto": 1
+  },
+  "estilo": {
+    "logo_escala": 1,
+    "alineacion": "izquierda",
+    "enfasis": "color"
+  },
+  "variantes": {
+    "claro": {
+      "nombre": "Claro",
+      "descripcion": "COMPLETAR: los colores base del cliente sobre fondo claro",
+      "colores": {},
+      "colores_superficie": {},
+      "logo": null,
+      "estilo": { "logo_escala": 1, "alineacion": "izquierda", "enfasis": "color" }
+    },
+    "oscuro": {
+      "nombre": "Oscuro",
+      "descripcion": "COMPLETAR: fondo oscuro del cliente, tarjetas claras encima",
+      "colores": {
+        "fondo": "COMPLETAR",
+        "texto": "COMPLETAR",
+        "texto_suave": "COMPLETAR",
+        "linea": "COMPLETAR",
+        "marco": "COMPLETAR",
+        "enfasis": "COMPLETAR",
+        "sobre_enfasis": "COMPLETAR",
+        "boton_fondo": "COMPLETAR",
+        "boton_texto": "COMPLETAR"
+      },
+      "colores_superficie": {},
+      "logo": null,
+      "estilo": { "logo_escala": 1, "alineacion": "centro", "enfasis": "color" }
+    },
+    "marca": {
+      "nombre": "Color de marca",
+      "descripcion": "COMPLETAR: fondo del color principal del cliente",
+      "colores": {
+        "fondo": "COMPLETAR",
+        "texto": "COMPLETAR",
+        "texto_suave": "COMPLETAR",
+        "linea": "COMPLETAR",
+        "marco": "COMPLETAR",
+        "enfasis": "COMPLETAR",
+        "sobre_enfasis": "COMPLETAR",
+        "boton_fondo": "COMPLETAR",
+        "boton_texto": "COMPLETAR"
+      },
+      "colores_superficie": {},
+      "logo": null,
+      "estilo": { "logo_escala": 1, "alineacion": "izquierda", "enfasis": "subrayado" }
+    }
+  },
+  "reglas_visuales": ["COMPLETAR"],
+  "voz": {
+    "idioma": "COMPLETAR",
+    "trato": "vos",
+    "acento_prompt": "COMPLETAR (una línea de catalogo/prompts/voz.md)",
+    "elevenlabs_voice_id": null,
+    "elevenlabs_modelo": "eleven_v4",
+    "elevenlabs_etiqueta": null
+  },
+  "copy": {
+    "prohibidas": [],
+    "afirmaciones": [
+      { "texto": "COMPLETAR", "fuente": "COMPLETAR: de dónde sale, fecha y quién lo aprobó" }
+    ],
+    "cta_aprobados": ["COMPLETAR"]
+  }
+}

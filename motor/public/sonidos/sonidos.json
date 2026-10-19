@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "ffmpeg": "ffmpeg version 8.0-essentials_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers",
+  "sonidos": {
+    "tilde": {
+      "receta": "-f lavfi -i aevalsrc=0.5*sin(2*PI*1760*t)*exp(-t*45)+0.25*sin(2*PI*2640*t)*exp(-t*60):s=48000:d=0.18",
+      "sha256": "3943801caebbe8adf197709281a3434d21161eb2552489f96c6fd3e562aef9e2"
+    },
+    "pop": {
+      "receta": "-f lavfi -i aevalsrc=0.6*sin(2*PI*(380+700*exp(-t*35))*t)*exp(-t*22):s=48000:d=0.22",
+      "sha256": "a457b6faf66c0c4e749aac5ab6b8228cac4e3ce80d6f0de7cf46a3bfbd903732"
+    },
+    "tecla": {
+      "receta": "-f lavfi -i anoisesrc=d=0.04:c=white:a=0.5:seed=11 -af highpass=f=1800,afade=t=out:st=0:d=0.04",
+      "sha256": "8a4701e7b73faa3c6259ae6985902f3a0f840c8e7adf82a96901ce43e69a18ea"
+    },
+    "barrido": {
+      "receta": "-f lavfi -i anoisesrc=d=0.5:c=pink:a=0.6:seed=7 -af bandpass=f=1800:width_type=o:w=2,afade=t=in:st=0:d=0.28,afade=t=out:st=0.28:d=0.22",
+      "sha256": "0e96e10d3af480492b353f1bb24e83f039e80deb06c810b2333ce00d1ed79e68"
+    },
+    "campana": {
+      "receta": "-f lavfi -i aevalsrc=0.35*sin(2*PI*880*t)*exp(-t*4)+0.25*sin(2*PI*1320*t)*exp(-t*5)+0.12*sin(2*PI*1760*t)*exp(-t*7):s=48000:d=1.0",
+      "sha256": "e423fed7f75ee7c698e6d707fa29aec4c7f205654dad83657be76620b7c06ada"
+    }
+  }
+}

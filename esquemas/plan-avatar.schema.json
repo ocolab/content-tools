@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "cliente": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "avatar-ugc",
+        "avatar-pantalla",
+        "voz-en-off-broll",
+        "dualcast"
+      ]
+    },
+    "personaje": {
+      "type": "object",
+      "properties": {
+        "descripcion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "hoja_de_personaje": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "herramienta": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60,
+                  "description": "modelo o servicio; ver catalogo/herramientas.md"
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4000
+                },
+                "referencias": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "archivos de entrada, en el orden en que el prompt los nombra (imagen 1, imagen 2…)"
+                },
+                "salida": {
+                  "type": "string",
+                  "description": "archivo que se espera en activos/"
+                }
+              },
+              "required": [
+                "herramienta",
+                "prompt",
+                "referencias",
+                "salida"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "imagen maestra 3x3 para mantener la cara idéntica"
+        },
+        "voz": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "acento": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "descripcion",
+        "hoja_de_personaje",
+        "voz",
+        "acento"
+      ],
+      "additionalProperties": false
+    },
+    "escenas": {
+      "minItems": 1,
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+          },
+          "clase": {
+            "type": "string",
+            "enum": [
+              "a_camara",
+              "pantalla",
+              "broll",
+              "dualcast"
+            ]
+          },
+          "guion": {
+            "description": "lo que dice; null si la escena no habla",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "imagen": {
+            "type": "object",
+            "properties": {
+              "herramienta": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "modelo o servicio; ver catalogo/herramientas.md"
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "referencias": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "archivos de entrada, en el orden en que el prompt los nombra (imagen 1, imagen 2…)"
+              },
+              "salida": {
+                "type": "string",
+                "description": "archivo que se espera en activos/"
+              }
+            },
+            "required": [
+              "herramienta",
+              "prompt",
+              "referencias",
+              "salida"
+            ],
+            "additionalProperties": false
+          },
+          "video": {
+            "type": "object",
+            "properties": {
+              "herramienta": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "modelo o servicio; ver catalogo/herramientas.md"
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "referencias": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "archivos de entrada, en el orden en que el prompt los nombra (imagen 1, imagen 2…)"
+              },
+              "salida": {
+                "type": "string",
+                "description": "archivo que se espera en activos/"
+              }
+            },
+            "required": [
+              "herramienta",
+              "prompt",
+              "referencias",
+              "salida"
+            ],
+            "additionalProperties": false
+          },
+          "duracion": {
+            "type": "number",
+            "minimum": 2,
+            "maximum": 15
+          }
+        },
+        "required": [
+          "id",
+          "clase",
+          "guion",
+          "imagen",
+          "video",
+          "duracion"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "aviso_ia": {
+      "type": "boolean",
+      "const": true,
+      "description": "el anuncio declara contenido generado con IA donde la plataforma lo pida"
+    }
+  },
+  "required": [
+    "version",
+    "cliente",
+    "id",
+    "tipo",
+    "personaje",
+    "escenas",
+    "aviso_ia"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/plan-avatar.schema.json",
+  "title": "plan-avatar"
+}

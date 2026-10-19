@@ -1,0 +1,486 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "cliente": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "formatos": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "9x16",
+          "4x5"
+        ]
+      }
+    },
+    "capturas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "origen": {
+            "type": "string",
+            "minLength": 1,
+            "description": "URL https o ruta relativa a la carpeta del kit (con ../ se sale de ella)"
+          },
+          "archivo": {
+            "type": "string",
+            "pattern": "^capturas\\/[a-z0-9-]+\\.png$"
+          },
+          "ancho": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 1600
+          },
+          "alto": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 6000
+          },
+          "escala": {
+            "anyOf": [
+              {
+                "type": "number",
+                "const": 1
+              },
+              {
+                "type": "number",
+                "const": 2
+              }
+            ]
+          }
+        },
+        "required": [
+          "origen",
+          "archivo",
+          "ancho",
+          "alto",
+          "escala"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "audio": {
+      "type": "object",
+      "properties": {
+        "musica": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^musica\\/.+\\.(mp3|wav|m4a)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "efectos": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "musica",
+        "efectos"
+      ],
+      "additionalProperties": false
+    },
+    "visual": {
+      "description": "variante de marca.json elegida en las propuestas",
+      "type": "object",
+      "properties": {
+        "variante": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+        }
+      },
+      "required": [
+        "variante"
+      ],
+      "additionalProperties": false
+    },
+    "plantilla": {
+      "type": "string",
+      "const": "explicativo"
+    },
+    "voz": {
+      "type": "object",
+      "properties": {
+        "usar": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "usar"
+      ],
+      "additionalProperties": false
+    },
+    "contenido": {
+      "type": "object",
+      "properties": {
+        "escenas": {
+          "minItems": 3,
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "gancho"
+                  },
+                  "texto": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 44
+                  },
+                  "destacado": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 30
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "texto",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "buscador"
+                  },
+                  "consulta": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "resultados": {
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 28
+                    }
+                  },
+                  "faltante": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 26
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "consulta",
+                  "resultados",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "armado"
+                  },
+                  "sitio": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "partes": {
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 18
+                    }
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "sitio",
+                  "partes",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "capturas"
+                  },
+                  "archivos": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^capturas\\/[a-z0-9-]+\\.png$"
+                    }
+                  },
+                  "etiqueta": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "archivos",
+                  "etiqueta",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "lista"
+                  },
+                  "items": {
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
+                    }
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "items",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "bilingue"
+                  },
+                  "sitio": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "titulo": {
+                    "type": "object",
+                    "properties": {
+                      "es": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      }
+                    },
+                    "required": [
+                      "es",
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "partes": {
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "es": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 28
+                        },
+                        "en": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 28
+                        }
+                      },
+                      "required": [
+                        "es",
+                        "en"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "sitio",
+                  "titulo",
+                  "partes",
+                  "voz"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "const": "cierre"
+                  },
+                  "titulo": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 72
+                  },
+                  "boton": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 26
+                  },
+                  "voz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180,
+                    "description": "lo que dice la voz en off en esta escena"
+                  },
+                  "duracion": {
+                    "description": "segundos; obligatorio si no hay voz grabada",
+                    "type": "number",
+                    "minimum": 1.5,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "titulo",
+                  "boton",
+                  "voz"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "escenas"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "cliente",
+    "id",
+    "formatos",
+    "capturas",
+    "audio",
+    "plantilla",
+    "voz",
+    "contenido"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/spec-explicativo.schema.json",
+  "title": "spec-explicativo"
+}

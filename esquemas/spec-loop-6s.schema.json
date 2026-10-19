@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "cliente": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "formatos": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "9x16",
+          "4x5"
+        ]
+      }
+    },
+    "capturas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "origen": {
+            "type": "string",
+            "minLength": 1,
+            "description": "URL https o ruta relativa a la carpeta del kit (con ../ se sale de ella)"
+          },
+          "archivo": {
+            "type": "string",
+            "pattern": "^capturas\\/[a-z0-9-]+\\.png$"
+          },
+          "ancho": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 1600
+          },
+          "alto": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 6000
+          },
+          "escala": {
+            "anyOf": [
+              {
+                "type": "number",
+                "const": 1
+              },
+              {
+                "type": "number",
+                "const": 2
+              }
+            ]
+          }
+        },
+        "required": [
+          "origen",
+          "archivo",
+          "ancho",
+          "alto",
+          "escala"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "audio": {
+      "type": "object",
+      "properties": {
+        "musica": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^musica\\/.+\\.(mp3|wav|m4a)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "efectos": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "musica",
+        "efectos"
+      ],
+      "additionalProperties": false
+    },
+    "visual": {
+      "description": "variante de marca.json elegida en las propuestas",
+      "type": "object",
+      "properties": {
+        "variante": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+        }
+      },
+      "required": [
+        "variante"
+      ],
+      "additionalProperties": false
+    },
+    "plantilla": {
+      "type": "string",
+      "const": "loop-6s"
+    },
+    "contenido": {
+      "type": "object",
+      "properties": {
+        "eyebrow": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "titulo": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 24,
+            "description": "*asteriscos* marcan el énfasis"
+          }
+        },
+        "items": {
+          "minItems": 3,
+          "maxItems": 5,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 26
+          }
+        },
+        "captura": {
+          "description": "captura de un trabajo real; va esta o «maqueta», no las dos",
+          "type": "string",
+          "pattern": "^capturas\\/[a-z0-9-]+\\.png$"
+        },
+        "maqueta": {
+          "description": "web genérica que cambia de español a inglés, en lugar de una captura",
+          "type": "object",
+          "properties": {
+            "sitio": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "titulo": {
+              "type": "object",
+              "properties": {
+                "es": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "en": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "es",
+                "en"
+              ],
+              "additionalProperties": false
+            },
+            "partes": {
+              "minItems": 2,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "es": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "en": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  }
+                },
+                "required": [
+                  "es",
+                  "en"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "sitio",
+            "titulo",
+            "partes"
+          ],
+          "additionalProperties": false
+        },
+        "etiqueta_captura": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "boton": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 26
+        }
+      },
+      "required": [
+        "eyebrow",
+        "titulo",
+        "items",
+        "etiqueta_captura",
+        "boton"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "cliente",
+    "id",
+    "formatos",
+    "capturas",
+    "audio",
+    "plantilla",
+    "contenido"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/spec-loop-6s.schema.json",
+  "title": "spec-loop-6s"
+}

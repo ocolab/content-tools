@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "requisitos": [
+    {
+      "id": "node",
+      "nombre": "Node.js 22 o más",
+      "tipo": "local",
+      "cuando": "siempre",
+      "obligatorio": true,
+      "pasos": [2, 4, 5, 6, 7],
+      "para": "Correr el motor y todos los scripts (nuevo, validar, capturar, render, qc).",
+      "herramientas": ["node"],
+      "como_conectar": "Instalar Node.js 22 LTS desde nodejs.org.",
+      "si_falta": "No se puede usar el motor. El proceso (preguntas, copy, planes) sí se puede seguir a mano.",
+      "costo": null
+    },
+    {
+      "id": "ffmpeg",
+      "nombre": "ffmpeg y ffprobe",
+      "tipo": "local",
+      "cuando": "siempre",
+      "obligatorio": true,
+      "pasos": [5, 6, 7],
+      "para": "Medir capturas, normalizar el volumen, renderizar y hacer el control de calidad.",
+      "herramientas": ["ffmpeg", "ffprobe"],
+      "como_conectar": "Instalar ffmpeg (ffmpeg.org) y dejar ffmpeg y ffprobe en el PATH.",
+      "si_falta": "No hay capturas, render ni control de calidad.",
+      "costo": null
+    },
+    {
+      "id": "dependencias",
+      "nombre": "Dependencias del motor (Remotion)",
+      "tipo": "local",
+      "cuando": "siempre",
+      "obligatorio": true,
+      "pasos": [5, 6, 7],
+      "para": "Las plantillas animadas y el navegador fijo de las capturas.",
+      "herramientas": ["npm ci"],
+      "como_conectar": "Correr npm ci dentro de motor/ (necesita Internet una vez). La primera captura o render baja el Chrome Headless Shell de Remotion.",
+      "si_falta": "Correr npm ci en motor/ antes de seguir.",
+      "costo": "Remotion pide licencia paga a empresas a partir de cierto tamaño: revisar sus condiciones."
+    },
+    {
+      "id": "cro",
+      "nombre": "Skill cro (Claude)",
+      "tipo": "skill",
+      "cuando": "copy",
+      "obligatorio": false,
+      "pasos": [3],
+      "para": "Proponer el copy: propuesta de valor, 3 ángulos con gancho, guion por escena y botón.",
+      "herramientas": ["cro"],
+      "como_conectar": "Instalar la skill cro (repositorio coreyhaines31/marketingskills) en el proyecto o en el usuario.",
+      "si_falta": "Avisar y usar catalogo/prompts/copy.md, que sirve con cualquier modelo.",
+      "costo": null
+    },
+    {
+      "id": "elevenlabs",
+      "nombre": "Conector MCP de ElevenLabs",
+      "tipo": "mcp",
+      "cuando": "voz_en_off",
+      "obligatorio": true,
+      "pasos": [5],
+      "para": "Elegir la voz de la marca, generar la voz en off y transcribirla con tiempos por palabra (subtítulos).",
+      "herramientas": ["creative_list_voices", "creative_create_flow", "creative_generate_speech", "creative_get_flow_run_status", "creative_transcribe_audio"],
+      "como_conectar": "En claude.ai: Configuración → Conectores → ElevenLabs. En Claude Code: /mcp. El conector completo (suma imagen, video y música) se agrega como conector personalizado con la URL https://api.elevenlabs.io/v1/mcp.",
+      "si_falta": "No generar la voz con otra herramienta por cuenta propia. Avisar que falta el conector y pedir que se conecte, o que se elija: (a) generar la voz en otra herramienta y registrarla con npm run voz -- <c>/<id> registrar, o (b) hacer el video sin voz (voz.usar false y duracion en cada escena).",
+      "costo": "Cobra créditos de ElevenLabs en cada generación: estimar con estimate_only y pedir OK antes."
+    },
+    {
+      "id": "imagen-con-referencias",
+      "nombre": "Generador de imágenes con referencias (MCP)",
+      "tipo": "mcp",
+      "cuando": "avatar",
+      "obligatorio": false,
+      "pasos": [5],
+      "para": "Hoja de personaje y una imagen por escena con la misma cara, para los tipos con avatar.",
+      "herramientas": ["generate-image"],
+      "como_conectar": "En claude.ai: Configuración → Conectores → Canva (u otro conector que genere imágenes con referencias; ver catalogo/herramientas.md).",
+      "si_falta": "Avisar y ofrecer generar las imágenes afuera con los prompts de plan-avatar.json; cada archivo se registra en activos.json.",
+      "costo": "Según la herramienta: consultar antes de generar."
+    },
+    {
+      "id": "video-con-avatar",
+      "nombre": "Generador de video con avatar que habla",
+      "tipo": "externo",
+      "cuando": "avatar",
+      "obligatorio": true,
+      "pasos": [5],
+      "para": "Los clips de video de cada escena con avatar.",
+      "herramientas": [],
+      "como_conectar": "Ninguno está integrado: Veo, Kling, Seedance, Hedra, HeyGen, OmniHuman o Sora, con los prompts de plan-avatar.json (ver catalogo/herramientas.md).",
+      "si_falta": "Avisar desde el brief que el video con avatar se genera fuera del kit, y quién lo hace y paga.",
+      "costo": "Según la herramienta."
+    },
+    {
+      "id": "editor-de-video",
+      "nombre": "Editor de video",
+      "tipo": "externo",
+      "cuando": "avatar",
+      "obligatorio": true,
+      "pasos": [6],
+      "para": "Montar los clips de avatar hasta que el motor lo haga.",
+      "herramientas": [],
+      "como_conectar": "CapCut u otro editor, siguiendo el orden de escenas de plan-avatar.json.",
+      "si_falta": "Avisar que el montaje con avatar es manual.",
+      "costo": null
+    },
+    {
+      "id": "meta-ads",
+      "nombre": "Conector MCP de Meta Ads",
+      "tipo": "mcp",
+      "cuando": "publicar",
+      "obligatorio": false,
+      "pasos": [8],
+      "para": "Subir el video aprobado a la cuenta publicitaria del cliente, creado en pausa.",
+      "herramientas": ["ads_creative_upload_media"],
+      "como_conectar": "En claude.ai: Configuración → Conectores → Meta Ads, con acceso a la cuenta publicitaria del cliente.",
+      "si_falta": "Entregar los MP4 y que el cliente los suba a mano.",
+      "costo": null
+    }
+  ]
+}

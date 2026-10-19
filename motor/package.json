@@ -1,0 +1,39 @@
+{
+  "name": "fabrica-creativos-motor",
+  "private": true,
+  "type": "module",
+  "description": "Motor de la fábrica de creativos: un spec.json por anuncio, plantillas Remotion y control de calidad con ffmpeg.",
+  "scripts": {
+    "cliente": "node scripts/cliente.mjs",
+    "nuevo": "node scripts/nuevo.mjs",
+    "validar": "node scripts/validar.mjs",
+    "sonidos": "node scripts/sonidos.mjs",
+    "capturar": "node scripts/capturar.mjs",
+    "voz": "node scripts/voz.mjs",
+    "render": "node scripts/render.mjs",
+    "qc": "node scripts/qc.mjs",
+    "estudio": "node scripts/estudio.mjs",
+    "esquemas": "node scripts/exportar-esquemas.mjs",
+    "tipos": "tsc --noEmit -p .",
+    "propuestas": "node scripts/propuestas.mjs",
+    "requisitos": "node scripts/requisitos.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.536",
+    "@remotion/cli": "4.0.536",
+    "@remotion/fonts": "4.0.536",
+    "@remotion/layout-utils": "4.0.536",
+    "@remotion/renderer": "4.0.536",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}

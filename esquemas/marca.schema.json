@@ -1,0 +1,655 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "cliente": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+    },
+    "nombre": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "fuente_tokens": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tipo": {
+              "type": "string",
+              "const": "css"
+            },
+            "archivo": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CSS de la web del cliente con las variables de color; validar compara contra él si lo encuentra"
+            },
+            "variables": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^--[a-z0-9-]+$"
+              },
+              "description": "rol de color → nombre de la variable CSS"
+            }
+          },
+          "required": [
+            "tipo",
+            "archivo",
+            "variables"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tipo": {
+              "type": "string",
+              "const": "brand_book"
+            },
+            "archivo": {
+              "type": "string",
+              "minLength": 1,
+              "description": "brand book o manual de marca (PDF, imagen o URL) del que se copiaron los colores"
+            },
+            "detalle": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "dónde están los colores en el documento, por ejemplo «págs. 12–14, paleta principal»"
+            }
+          },
+          "required": [
+            "tipo",
+            "archivo",
+            "detalle"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "description": "obligatorio: la web del cliente (css) o su brand book (brand_book)"
+    },
+    "colores": {
+      "type": "object",
+      "properties": {
+        "fondo": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "superficie": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "marco": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "linea": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "texto": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "texto_suave": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "enfasis": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "sobre_enfasis": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "grafico": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "acento": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "acento_texto": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "boton_fondo": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "boton_texto": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        }
+      },
+      "required": [
+        "fondo",
+        "superficie",
+        "marco",
+        "linea",
+        "texto",
+        "texto_suave",
+        "enfasis",
+        "sobre_enfasis",
+        "grafico",
+        "acento",
+        "acento_texto",
+        "boton_fondo",
+        "boton_texto"
+      ],
+      "additionalProperties": false
+    },
+    "paleta": {
+      "description": "otros colores del cliente sin rol (paleta secundaria): las variantes también pueden usarlos",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          }
+        },
+        "required": [
+          "nombre",
+          "color"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tipografia": {
+      "type": "object",
+      "properties": {
+        "familia": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "archivo": {
+          "type": "string",
+          "pattern": "^activos\\/.+\\.(ttf|otf|woff2?)$"
+        },
+        "pesos": {
+          "type": "string",
+          "pattern": "^\\d{3}( \\d{3})?$"
+        },
+        "peso_texto": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "peso_ui": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "peso_titulo": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "peso_enfasis": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "tracking_titulo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "familia",
+        "archivo",
+        "pesos",
+        "peso_texto",
+        "peso_ui",
+        "peso_titulo",
+        "peso_enfasis",
+        "tracking_titulo"
+      ],
+      "additionalProperties": false
+    },
+    "forma": {
+      "type": "object",
+      "properties": {
+        "radio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 48
+        },
+        "borde": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "sombra": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "radio",
+        "borde",
+        "sombra"
+      ],
+      "additionalProperties": false
+    },
+    "logo": {
+      "type": "object",
+      "properties": {
+        "archivo": {
+          "type": "string",
+          "pattern": "^activos\\/.+\\.(png|svg)$"
+        },
+        "ancho": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "alto": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "archivo",
+        "ancho",
+        "alto"
+      ],
+      "additionalProperties": false
+    },
+    "estilo": {
+      "description": "estilo base; sin esto: logo_escala 1, izquierda, color",
+      "type": "object",
+      "properties": {
+        "logo_escala": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3,
+          "description": "multiplica el alto del logo en todas las plantillas"
+        },
+        "alineacion": {
+          "type": "string",
+          "enum": [
+            "izquierda",
+            "centro"
+          ]
+        },
+        "enfasis": {
+          "type": "string",
+          "enum": [
+            "color",
+            "subrayado"
+          ],
+          "description": "cómo se marcan las *palabras clave*"
+        }
+      },
+      "required": [
+        "logo_escala",
+        "alineacion",
+        "enfasis"
+      ],
+      "additionalProperties": false
+    },
+    "variantes": {
+      "description": "direcciones visuales para las propuestas (paso 4b)",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "colores": {
+            "type": "object",
+            "properties": {
+              "fondo": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "superficie": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "marco": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "linea": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "texto_suave": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "enfasis": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "sobre_enfasis": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "grafico": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "acento": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "acento_texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "boton_fondo": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "boton_texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            },
+            "additionalProperties": false,
+            "description": "cambios sobre los colores base para lo que va sobre el fondo"
+          },
+          "colores_superficie": {
+            "type": "object",
+            "properties": {
+              "fondo": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "superficie": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "marco": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "linea": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "texto_suave": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "enfasis": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "sobre_enfasis": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "grafico": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "acento": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "acento_texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "boton_fondo": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "boton_texto": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            },
+            "additionalProperties": false,
+            "description": "paleta de tarjetas, ventanas y pantallas (sobre los colores base)"
+          },
+          "logo": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "archivo": {
+                    "type": "string",
+                    "pattern": "^activos\\/.+\\.(png|svg)$"
+                  },
+                  "ancho": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "alto": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "archivo",
+                  "ancho",
+                  "alto"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "otro logo, por ejemplo la versión clara para fondos oscuros"
+          },
+          "estilo": {
+            "type": "object",
+            "properties": {
+              "logo_escala": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 3,
+                "description": "multiplica el alto del logo en todas las plantillas"
+              },
+              "alineacion": {
+                "type": "string",
+                "enum": [
+                  "izquierda",
+                  "centro"
+                ]
+              },
+              "enfasis": {
+                "type": "string",
+                "enum": [
+                  "color",
+                  "subrayado"
+                ],
+                "description": "cómo se marcan las *palabras clave*"
+              }
+            },
+            "required": [
+              "logo_escala",
+              "alineacion",
+              "enfasis"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "nombre",
+          "descripcion",
+          "colores",
+          "colores_superficie",
+          "logo",
+          "estilo"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reglas_visuales": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      }
+    },
+    "voz": {
+      "type": "object",
+      "properties": {
+        "idioma": {
+          "type": "string"
+        },
+        "trato": {
+          "type": "string",
+          "enum": [
+            "vos",
+            "tu",
+            "usted"
+          ]
+        },
+        "acento_prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "línea de acento que se agrega a los prompts de voz y video"
+        },
+        "elevenlabs_voice_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "elevenlabs_modelo": {
+          "type": "string"
+        },
+        "elevenlabs_etiqueta": {
+          "description": "etiqueta que se antepone al texto en eleven_v3/v4, por ejemplo el acento; no se pronuncia",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "idioma",
+        "trato",
+        "acento_prompt",
+        "elevenlabs_voice_id",
+        "elevenlabs_modelo"
+      ],
+      "additionalProperties": false
+    },
+    "copy": {
+      "type": "object",
+      "properties": {
+        "prohibidas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2
+          },
+          "description": "palabras o frases que no pueden aparecer en ningún texto ni en la voz"
+        },
+        "afirmaciones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "texto": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "fuente": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240,
+                "description": "de dónde sale: archivo, fecha y quién lo aprobó"
+              }
+            },
+            "required": [
+              "texto",
+              "fuente"
+            ],
+            "additionalProperties": false
+          },
+          "description": "lo único que se puede afirmar; toda cifra tiene que estar acá"
+        },
+        "cta_aprobados": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        }
+      },
+      "required": [
+        "prohibidas",
+        "afirmaciones",
+        "cta_aprobados"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "cliente",
+    "nombre",
+    "fuente_tokens",
+    "colores",
+    "tipografia",
+    "forma",
+    "logo",
+    "reglas_visuales",
+    "voz",
+    "copy"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/marca.schema.json",
+  "title": "marca"
+}

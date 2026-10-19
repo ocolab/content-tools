@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "aprobado": {
+      "type": "boolean",
+      "description": "true solo cuando el cliente eligió y aprobó"
+    },
+    "metodo": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "cómo se propuso: «skill cro» o «catalogo/prompts/copy.md»"
+    },
+    "propuesta_valor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "angulos": {
+      "minItems": 2,
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "gancho": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 90
+          },
+          "por_que": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          }
+        },
+        "required": [
+          "nombre",
+          "gancho",
+          "por_que"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "elegido": {
+      "type": "object",
+      "properties": {
+        "angulo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "gancho": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 90
+        },
+        "titulo": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "puntos": {
+          "maxItems": 6,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          }
+        },
+        "guion": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "escena": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "texto": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "escena",
+              "texto"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "boton": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      },
+      "required": [
+        "angulo",
+        "gancho",
+        "titulo",
+        "puntos",
+        "guion",
+        "boton"
+      ],
+      "additionalProperties": false
+    },
+    "afirmaciones_usadas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "aprobado",
+    "metodo",
+    "propuesta_valor",
+    "angulos",
+    "elegido",
+    "afirmaciones_usadas"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/copy.schema.json",
+  "title": "copy"
+}

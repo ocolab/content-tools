@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "id": "ejemplo-avatar",
+  "tipo": "avatar-pantalla",
+  "personaje": {
+    "descripcion": "COMPLETAR: edad, estilo, ropa y lugar (por ejemplo: mujer de unos 35 años, camisa clara, en una oficina chica con plantas y luz natural)",
+    "hoja_de_personaje": {
+      "herramienta": "COMPLETAR (ver catalogo/herramientas.md)",
+      "prompt": "Build an identity reference sheet of the person in the reference: a 3-by-3 grid of nine portraits on a flat pale-gray backdrop. Grid order: facing the camera; turned fully left; turned fully right; half-turned left; half-turned right; chin slightly raised; chin slightly lowered; relaxed neutral face; serious face. Every portrait shows the same individual with the same features, including small asymmetries, and the same hair, outfit and accessories. Keep lens, distance and soft even lighting identical across the grid. No retouching, smoothing or stylization: the sheet will be used to keep this identity consistent in later images.",
+      "referencias": ["activos/persona-base.png"],
+      "salida": "activos/hoja-personaje.png"
+    },
+    "voz": "Voice: a woman around 35, mid pitch, clean tone, unhurried and assured.",
+    "acento": "COMPLETAR con marca.json › voz.acento_prompt"
+  },
+  "escenas": [
+    {
+      "id": "gancho",
+      "clase": "a_camara",
+      "guion": "COMPLETAR con el gancho del copy aprobado",
+      "imagen": {
+        "herramienta": "COMPLETAR",
+        "prompt": "Treat the person in the reference as a fixed identity: their facial features, hairstyle, skin tone, build and apparent age must match it exactly. Apply one edit and nothing else: they sit at a desk in a small office with plants, daylight from a window, looking at the camera. Render it as a real photograph with true-to-life skin detail. Output one image.",
+        "referencias": ["activos/hoja-personaje.png"],
+        "salida": "activos/gancho.png"
+      },
+      "video": {
+        "herramienta": "COMPLETAR",
+        "prompt": "A quick move in at the start that lands on a close-up just as the first word is spoken. Then the person faces the lens and says: \"{{guion}}\". {{voz}} {{acento}} One uninterrupted shot: no edits, no scene changes; once the camera stops moving, it stays on that framing.",
+        "referencias": ["activos/gancho.png"],
+        "salida": "activos/gancho.mp4"
+      },
+      "duracion": 4
+    },
+    {
+      "id": "muestra",
+      "clase": "pantalla",
+      "guion": "COMPLETAR",
+      "imagen": {
+        "herramienta": "COMPLETAR",
+        "prompt": "Reference 1 shows the person with a device whose display is black. Reference 2 is a screenshot. Put the screenshot on that display so it covers it edge to edge, following the angle and the rounded corners of the screen, with plausible screen brightness and a faint reflection. Use the screenshot as it is: same proportions, nothing cropped, stretched or redrawn, every word as readable as in reference 2. Everything outside the display stays exactly as in reference 1. Output one image.",
+        "referencias": ["activos/pantalla-negra.png", "capturas/sitio.png"],
+        "salida": "activos/muestra.png"
+      },
+      "video": {
+        "herramienta": "COMPLETAR",
+        "prompt": "Camera fixed in place. The person and the device look exactly as in the reference, and whatever is on the screen does not change or move. They hold the phone up to the lens, look down at it briefly, look back at the camera and say: \"{{guion}}\". {{voz}} {{acento}} One uninterrupted shot: no edits, no scene changes.",
+        "referencias": ["activos/muestra.png"],
+        "salida": "activos/muestra.mp4"
+      },
+      "duracion": 6
+    }
+  ],
+  "aviso_ia": true
+}

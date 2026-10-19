@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "activos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "archivo": {
+            "type": "string"
+          },
+          "clase": {
+            "type": "string",
+            "enum": [
+              "voz",
+              "palabras",
+              "imagen",
+              "video",
+              "musica",
+              "captura"
+            ]
+          },
+          "herramienta": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parametros": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "prompt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "texto_sha256": {
+            "description": "hash del texto que se generó (voz); si cambia el texto, el activo queda viejo",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "fecha": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "aprobado": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "archivo",
+          "clase",
+          "herramienta",
+          "modelo",
+          "parametros",
+          "prompt",
+          "texto_sha256",
+          "sha256",
+          "fecha",
+          "aprobado"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "activos"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/activos.schema.json",
+  "title": "activos"
+}

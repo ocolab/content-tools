@@ -1,0 +1,11 @@
+# Dependencias y archivos que se rearman en cada render
+motor/node_modules/
+motor/public/actual/
+
+# Datos de cada cliente y sus trabajos: no se publican
+clientes/*/
+trabajos/
+
+# Sistema
+.DS_Store
+Thumbs.db

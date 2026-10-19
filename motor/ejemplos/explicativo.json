@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "id": "ejemplo-explicativo",
+  "plantilla": "explicativo",
+  "formatos": ["9x16", "4x5"],
+  "capturas": [
+    { "origen": "COMPLETAR", "archivo": "capturas/sitio.png", "ancho": 390, "alto": 2400, "escala": 2 }
+  ],
+  "audio": { "musica": null, "efectos": true },
+  "voz": { "usar": false },
+  "contenido": {
+    "escenas": [
+      { "tipo": "gancho", "texto": "COMPLETAR", "destacado": "COMPLETAR", "voz": "COMPLETAR", "duracion": 3.2 },
+      { "tipo": "buscador", "consulta": "COMPLETAR", "resultados": ["COMPLETAR", "COMPLETAR", "COMPLETAR"], "faltante": "COMPLETAR", "voz": "COMPLETAR", "duracion": 4.4 },
+      { "tipo": "armado", "sitio": "COMPLETAR", "partes": ["COMPLETAR", "COMPLETAR", "COMPLETAR"], "voz": "COMPLETAR", "duracion": 4.2 },
+      { "tipo": "capturas", "archivos": ["capturas/sitio.png"], "etiqueta": "COMPLETAR", "voz": "COMPLETAR", "duracion": 3.4 },
+      { "tipo": "lista", "items": ["COMPLETAR", "COMPLETAR", "COMPLETAR"], "voz": "COMPLETAR", "duracion": 3.6 },
+      { "tipo": "cierre", "titulo": "COMPLETAR", "boton": "COMPLETAR", "voz": "COMPLETAR", "duracion": 3.2 }
+    ]
+  }
+}

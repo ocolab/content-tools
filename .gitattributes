@@ -1,0 +1,14 @@
+# Fin de línea LF en el repositorio, en cualquier sistema
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.wav binary
+*.mp3 binary
+*.mp4 binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

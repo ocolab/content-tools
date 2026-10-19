@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "id": "ejemplo-loop",
+  "plantilla": "loop-6s",
+  "formatos": ["9x16", "4x5"],
+  "capturas": [
+    { "origen": "COMPLETAR", "archivo": "capturas/sitio.png", "ancho": 390, "alto": 2400, "escala": 2 }
+  ],
+  "audio": { "musica": null, "efectos": true },
+  "contenido": {
+    "eyebrow": "COMPLETAR",
+    "titulo": ["COMPLETAR", "COMPLETAR", "*COMPLETAR*"],
+    "items": ["COMPLETAR", "COMPLETAR", "COMPLETAR"],
+    "captura": "capturas/sitio.png",
+    "etiqueta_captura": "COMPLETAR",
+    "boton": "COMPLETAR"
+  }
+}

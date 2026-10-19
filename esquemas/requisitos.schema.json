@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "requisitos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,60}$"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "local",
+              "skill",
+              "mcp",
+              "externo"
+            ],
+            "description": "local: programa en la máquina; skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"
+          },
+          "cuando": {
+            "type": "string",
+            "enum": [
+              "siempre",
+              "copy",
+              "voz_en_off",
+              "avatar",
+              "publicar"
+            ],
+            "description": "en qué trabajos hace falta"
+          },
+          "obligatorio": {
+            "type": "boolean",
+            "description": "true: sin esto el paso no se puede hacer como está escrito"
+          },
+          "pasos": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            }
+          },
+          "para": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "herramientas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "comandos, skills o herramientas MCP; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"
+          },
+          "como_conectar": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "si_falta": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "qué hace el agente: avisar, pedir que se conecte y ofrecer la alternativa"
+          },
+          "costo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "tipo",
+          "cuando",
+          "obligatorio",
+          "pasos",
+          "para",
+          "herramientas",
+          "como_conectar",
+          "si_falta",
+          "costo"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "requisitos"
+  ],
+  "additionalProperties": false,
+  "$id": "fabrica-creativos/esquemas/requisitos.schema.json",
+  "title": "requisitos"
+}
