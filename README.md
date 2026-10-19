@@ -14,7 +14,8 @@ brand book, logo, tipografía, voz y reglas de copy) y arma su perfil.
 
 > **Requisitos:** Node 22, ffmpeg y, según el anuncio, **conectores MCP**
 > (ElevenLabs para la voz en off, un generador de imágenes para el avatar,
-> Meta Ads para subir). `npm run requisitos -- <cliente>/<id>` dice cuáles
+> Meta Ads para subir) y la clave de fal.ai en la variable de entorno
+> `FAL_KEY` para generar los clips de avatar. `npm run requisitos -- <cliente>/<id>` dice cuáles
 > necesita cada trabajo; el agente que corre el proceso tiene que comprobarlos
 > y avisar si falta alguno antes del paso. Ver [REQUISITOS.md](REQUISITOS.md).
 > No hace falta que el cliente tenga web: los design tokens pueden salir de su
@@ -67,8 +68,8 @@ carpeta [claude/](claude/SKILL.md) es la skill: se copia o se enlaza como
 |---|---|
 | Proceso, preguntas, esquemas, requisitos | Listos |
 | Motor: `loop-6s` y `explicativo` | Listos y probados |
-| Tipos con avatar | Prompts y fichas listos; generación con herramientas externas y montaje en un editor |
-| Montaje de clips de avatar en el motor | Pendiente |
+| Tipos con avatar | Prompts y fichas listos; `npm run clip` genera los clips en fal.ai (lip-sync con la toma de voz y b-roll) o registra los hechos afuera. Probado sin generar: todavía no se pagó un clip real |
+| Montaje de clips de avatar en el motor | Listo y probado con clips locales (escena `clip` del explicativo). El dualcast se monta en un editor |
 | Render idéntico en el 9:16 | 1 de 6 renders seguidos salió distinto; el render lo avisa (ver [motor/LEEME.md](motor/LEEME.md)) |
 
 ## Licencias y créditos

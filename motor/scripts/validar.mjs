@@ -5,8 +5,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { KIT, MOTOR, PUBLICO, SONIDOS, dirCliente, leerJson, normalizar, sha256, sha256Archivo, textoVoz, tokens, trabajo } from "./comun.mjs";
+import { KIT, MOTOR, PUBLICO, SONIDOS, clipsDelSpec, dirCliente, duracionMedia, leerJson, normalizar, sha256, sha256Archivo, textoVoz, tokens, trabajo } from "./comun.mjs";
 import { Activos, Brief, Copy, Marca, PlanAvatar, Spec, TIPOS, TIPOS_DEL_MOTOR } from "./esquemas.mjs";
+import { FPS, tiemposExplicativo } from "../src/calculo.js";
 
 const rel = (p) => path.relative(KIT, p).replaceAll("\\", "/");
 
@@ -28,7 +29,7 @@ function revisarEsquema(esquema, datos, nombre, errores) {
 
 /** Todos los textos que se ven o se escuchan en el spec (también dentro de objetos y listas). */
 function textosDelSpec(spec) {
-  const fuera = new Set(["tipo", "duracion", "archivos", "captura"]);
+  const fuera = new Set(["tipo", "duracion", "archivos", "captura", "archivo"]);
   const juntar = (v) =>
     typeof v === "string" ? [v] : Array.isArray(v) ? v.flatMap(juntar) : v && typeof v === "object" ? Object.entries(v).filter(([k]) => !fuera.has(k)).flatMap(([, x]) => juntar(x)) : [];
   return spec.plantilla === "loop-6s" ? juntar(spec.contenido) : spec.contenido.escenas.flatMap(juntar);
@@ -87,6 +88,41 @@ function revisarTokens(marca, dir, errores, avisos) {
         if (!tokens.has(c.toLowerCase())) errores.push(`marca.json › variantes.${id}.${grupo}.${rol}: ${c} no es un token del cliente (no está en ${donde})`);
 }
 
+/** Escenas «clip»: el archivo existe, está registrado y alcanza para su escena; sin dos voces a la vez. */
+function revisarClips(spec, datos, t, arg, activos, plan, { sinClips, errores, avisos }) {
+  if (spec.plantilla !== "explicativo") return;
+  let tiempos = null;
+  try {
+    tiempos = tiemposExplicativo(spec, spec.voz.usar ? datos.palabras ?? null : null);
+  } catch {
+    // La voz no coincide con el guion: ya figura como error más arriba.
+  }
+  spec.contenido.escenas.forEach((e, k) => {
+    if (e.tipo !== "clip") return;
+    if (e.audio_del_clip && spec.voz.usar) errores.push(`spec.json › escena ${k + 1}: audio_del_clip con voz en off suenan dos voces a la vez; dejalo en false (el clip de lip-sync ya usa la toma de voz)`);
+    if (sinClips) return;
+    const p = path.join(t.dir, e.archivo);
+    if (!fs.existsSync(p)) {
+      errores.push(`Falta ${e.archivo}: generalo con npm run clip -- ${arg} <escena> o, si se hizo afuera, registralo con npm run clip -- ${arg} <escena> registrar`);
+      return;
+    }
+    const registro = activos?.activos?.find((a) => a.archivo === e.archivo && a.clase === "video");
+    if (!registro) errores.push(`${e.archivo} no está registrado en activos.json: usá npm run clip -- ${arg} <escena> registrar`);
+    // Un clip de lip-sync se hizo con un tramo de la toma de voz: si la toma cambió, la boca ya no coincide.
+    const vozDelClip = registro?.parametros?.audio?.voz_sha256;
+    const vozActual = path.join(t.dir, "audio", "voz.mp3");
+    if (vozDelClip && fs.existsSync(vozActual) && vozDelClip !== sha256Archivo(vozActual))
+      errores.push(`${e.archivo} se hizo con otra toma de voz: la boca no coincide con audio/voz.mp3. Hay que generarlo de nuevo (npm run clip … --forzar)`);
+    if (registro?.texto_sha256 && registro.texto_sha256 !== sha256((Array.isArray(plan?.escenas) ? plan.escenas : []).find((x) => x?.video?.salida === e.archivo)?.guion ?? e.voz))
+      avisos.push(`El guion de ${e.archivo} cambió después de generarlo: revisá que el clip diga lo nuevo`);
+    if (tiempos) {
+      const escena = tiempos.escenas[k].frames / FPS;
+      const clip = duracionMedia(p);
+      if (clip + 0.25 < escena) avisos.push(`${e.archivo} dura ${clip.toFixed(2)} s y su escena ${escena.toFixed(2)} s: el último cuadro queda quieto ${(escena - clip).toFixed(2)} s`);
+    }
+  });
+}
+
 function revisarDeterminismo(errores) {
   const prohibido = /Math\.random|Date\.now|new Date\(|fetch\(|performance\.now/;
   const recorrer = (dir) =>
@@ -100,7 +136,11 @@ function revisarDeterminismo(errores) {
   }
 }
 
-export function validarTrabajo(arg) {
+/**
+ * @param {string} arg <cliente>/<id>
+ * @param {{ sinClips?: boolean }} [opciones] sinClips: no exige que los clips ya existan (lo usa npm run clip, que los genera)
+ */
+export function validarTrabajo(arg, { sinClips = false } = {}) {
   const t = trabajo(arg);
   const errores = [];
   const avisos = [];
@@ -177,7 +217,12 @@ export function validarTrabajo(arg) {
       if (spec.cliente !== t.cliente || spec.id !== t.id) errores.push(`spec.json dice ${spec.cliente}/${spec.id} y la carpeta es ${arg}`);
       if (spec.visual && !marca.variantes?.[spec.visual.variante])
         errores.push(`spec.json › visual.variante: «${spec.visual.variante}» no está en las variantes de marca.json (${Object.keys(marca.variantes ?? {}).join(", ") || "ninguna"})`);
-      if (brief?.tipo && brief.tipo !== spec.plantilla) errores.push(`brief.json eligió ${brief.tipo} y spec.json usa ${spec.plantilla}`);
+      // Con avatar, spec.json es el montaje: un explicativo con escenas «clip».
+      const montaje = spec.plantilla === "explicativo" && clipsDelSpec(spec).length > 0;
+      const conAvatar = brief?.estilo === "avatar" || (brief?.tipo && TIPOS[brief.tipo] === "avatar");
+      if (conAvatar && !montaje)
+        errores.push("El brief es de avatar: spec.json tiene que ser el montaje, un explicativo con escenas «clip» (ver motor/ejemplos/montaje-avatar.json)");
+      else if (brief?.tipo && !conAvatar && brief.tipo !== spec.plantilla) errores.push(`brief.json eligió ${brief.tipo} y spec.json usa ${spec.plantilla}`);
       if (brief) for (const f of spec.formatos) if (!brief.formatos.includes(f)) avisos.push(`spec.json pide ${f}, que no está en brief.formatos`);
       revisarCopy(textosDelSpec(spec), marca, "spec.json", errores, avisos);
 
@@ -229,8 +274,8 @@ export function validarTrabajo(arg) {
         }
       }
       if (brief && segundos > brief.duracion_max) errores.push(`El video dura ${segundos.toFixed(1)} s y el brief permite ${brief.duracion_max} s`);
-      if (brief?.estilo === "avatar") errores.push("El brief es de avatar y spec.json es del motor de animación: usá plan-avatar.json");
       datos.segundos = segundos;
+      revisarClips(spec, datos, t, arg, leer("activos.json"), leer("plan-avatar.json"), { sinClips, errores, avisos });
       ok.push(`spec.json (${spec.plantilla}, ${segundos.toFixed(1)} s)`);
     }
   }
@@ -242,6 +287,15 @@ export function validarTrabajo(arg) {
     if (JSON.stringify(plan).includes("COMPLETAR")) errores.push("plan-avatar.json tiene campos sin completar (COMPLETAR)");
     if (revisarEsquema(PlanAvatar, plan, "plan-avatar.json", errores)) {
       revisarCopy(plan.escenas.map((e) => e.guion).filter(Boolean), marca, "plan-avatar.json", errores, avisos);
+      datos.plan = plan;
+      // Lo que dice el avatar en el plan tiene que ser lo que dice la escena del montaje (y sus subtítulos).
+      if (datos.spec?.plantilla === "explicativo")
+        for (const e of datos.spec.contenido.escenas.filter((x) => x.tipo === "clip")) {
+          const p = plan.escenas.find((x) => x.video.salida === e.archivo);
+          if (!p) avisos.push(`spec.json usa ${e.archivo}, que no sale de ninguna escena de plan-avatar.json (¿clip hecho afuera?)`);
+          else if (p.guion !== null && !`${p.guion} ${e.voz}`.includes("COMPLETAR") && normalizar(p.guion).replace(/[^a-z0-9 ]/g, "") !== normalizar(e.voz).replace(/[^a-z0-9 ]/g, ""))
+            errores.push(`La escena «${p.id}» de plan-avatar.json dice «${p.guion}» y la escena clip de spec.json dice «${e.voz}»: tienen que decir lo mismo`);
+        }
       if (brief && brief.estilo === "animacion") errores.push("El brief es de animación y hay plan-avatar.json");
       ok.push(`plan-avatar.json (${plan.escenas.length} escenas)`);
     }
@@ -260,6 +314,8 @@ export function validarTrabajo(arg) {
 
   if (brief?.tipo && !TIPOS[brief.tipo]) errores.push(`Tipo desconocido: ${brief.tipo}`);
   if (brief?.tipo && TIPOS_DEL_MOTOR.includes(brief.tipo) && copy?.aprobado && !spec) avisos.push("Copy aprobado y sin spec.json todavía (paso 4)");
+  if (plan && !spec && brief?.tipo !== "dualcast")
+    avisos.push("Hay plan-avatar.json y no hay spec.json: para montar los clips en el motor, armá el montaje (motor/ejemplos/montaje-avatar.json)");
 
   revisarDeterminismo(errores);
   return { errores, avisos, ok, datos };

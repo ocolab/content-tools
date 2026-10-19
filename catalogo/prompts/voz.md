@@ -2,10 +2,12 @@
 
 Dos usos distintos:
 
-- **Voz dentro de un modelo de video** (el avatar habla): se describe con la
-  fórmula de abajo, en el prompt de video.
-- **Voz en off** (el explicativo o el b-roll): se genera aparte con una
-  herramienta de texto a voz (hoy ElevenLabs) y se monta en el motor.
+- **Voz en off y voz del avatar** (el explicativo, el b-roll y el avatar que
+  habla con lip-sync): se genera aparte con una herramienta de texto a voz
+  (hoy ElevenLabs), **una toma para todo el anuncio**, y se monta en el motor.
+  Para el avatar, `npm run clip` corta de esa toma el tramo de cada escena.
+- **Voz dentro de un modelo de video** (el modelo habla solo, por ejemplo Veo
+  en Google Flow): se describe con la fórmula de abajo, en el prompt de video.
 
 ## Cómo se describe una voz
 
@@ -77,3 +79,10 @@ fijada en `activos.json`.
 
 Con otra herramienta de voz el procedimiento es el mismo: una toma, una
 transcripción con tiempos por palabra y `npm run voz -- … registrar`.
+
+**Con avatar** el procedimiento es el mismo, con el `spec.json` de montaje:
+el texto es la unión de las líneas `voz` de sus escenas (las `clip` dicen el
+guion de su escena del plan). Después, `npm run clip` usa el tramo de esta
+toma para cada escena que habla. Si la toma se genera de nuevo, los clips de
+lip-sync hechos con la anterior hay que generarlos otra vez (`validar` lo
+marca).

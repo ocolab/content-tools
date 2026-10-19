@@ -9,9 +9,9 @@ reutilizables están en [prompts/](prompts/); las herramientas por etapa, en
 |---|---|---|---|---|---|---|
 | [loop-6s](tipos/loop-6s.md) | animación | reconocimiento, tráfico, mensajes | 6 s en loop | Una idea grande + 3–5 puntos + una prueba | motor | listo |
 | [explicativo](tipos/explicativo.md) | animación (voz en off opcional) | mensajes, clientes potenciales | 15–30 s | Problema → solución → prueba → botón | motor | listo |
-| [avatar-pantalla](tipos/avatar-pantalla.md) | avatar | mensajes (web, app, software) | 15–25 s | Una persona muestra el sitio en el celular o la compu | prompts + herramientas externas | prompts listos |
-| [avatar-ugc](tipos/avatar-ugc.md) | avatar | mensajes, clientes potenciales | 15–30 s | Una persona habla a cámara y presenta la oferta | prompts + herramientas externas | prompts listos |
-| [voz-en-off-broll](tipos/voz-en-off-broll.md) | avatar sin hablar | reconocimiento, tráfico | 10–20 s | Escenas cotidianas del cliente con voz en off | prompts + herramientas externas | prompts listos |
+| [avatar-pantalla](tipos/avatar-pantalla.md) | avatar | mensajes (web, app, software) | 15–25 s | Una persona muestra el sitio en el celular o la compu | prompts + `npm run clip` + motor | listo, sin clip real todavía |
+| [avatar-ugc](tipos/avatar-ugc.md) | avatar | mensajes, clientes potenciales | 15–30 s | Una persona habla a cámara y presenta la oferta | prompts + `npm run clip` + motor | listo, sin clip real todavía |
+| [voz-en-off-broll](tipos/voz-en-off-broll.md) | avatar sin hablar | reconocimiento, tráfico | 10–20 s | Escenas cotidianas del cliente con voz en off | prompts + `npm run clip` + motor | listo, sin clip real todavía |
 | [dualcast](tipos/dualcast.md) | avatar | objeciones, consideración | 20–40 s | Dos personas: una pregunta lo que frena, la otra responde | prompts + herramientas externas | prompts listos |
 
 ## Cómo elegir
@@ -25,7 +25,8 @@ reutilizables están en [prompts/](prompts/); las herramientas por etapa, en
    - Hay una objeción concreta que frena la compra → `dualcast`.
    - El producto se entiende mejor en uso que explicado → `voz-en-off-broll`.
 3. **Mixto**: gancho de 3 s con `avatar-ugc` y después un `explicativo`.
-   Hasta que el motor monte clips, se arma en un editor.
+   Se arma en el motor: el gancho es una escena `clip` y el resto, escenas
+   animadas, todo sobre la misma toma de voz.
 
 **Si lo que se vende se ve en una pantalla** (una web, una app, un sistema):
 `explicativo` o `avatar-pantalla`, y `loop-6s` como pieza de prueba barata

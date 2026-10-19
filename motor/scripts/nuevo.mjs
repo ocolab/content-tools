@@ -1,5 +1,6 @@
 // Abre un trabajo nuevo: trabajos/<cliente>/<id>/ con el brief para completar
-// y, si ya se sabe el tipo, el spec o el plan de partida.
+// y, si ya se sabe el tipo, el spec o el plan de partida (con avatar: el plan
+// y el montaje, que es un explicativo con escenas «clip»).
 // Uso: npm run nuevo -- <cliente>/<id> [--tipo loop-6s|explicativo|avatar-ugc|avatar-pantalla|voz-en-off-broll|dualcast]
 import fs from "node:fs";
 import path from "node:path";
@@ -45,6 +46,11 @@ if (tipo && TIPOS_DEL_MOTOR.includes(tipo)) {
 } else if (tipo) {
   const plan = leerJson(path.join(MOTOR, "ejemplos", "plan-avatar.json"));
   escribirJson(path.join(t.dir, "plan-avatar.json"), { ...plan, cliente: t.cliente, id: t.id, tipo });
+  // El montaje en el motor: un explicativo con escenas «clip». El dualcast (dos voces) se monta afuera.
+  if (tipo !== "dualcast") {
+    const montaje = leerJson(path.join(MOTOR, "ejemplos", "montaje-avatar.json"));
+    escribirJson(path.join(t.dir, "spec.json"), { ...montaje, cliente: t.cliente, id: t.id });
+  }
 }
 
 console.log(`✓ Trabajo creado en ${path.relative(KIT, t.dir)}`);

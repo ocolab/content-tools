@@ -70,6 +70,37 @@ export function copiarDir(origen, destino) {
   }
 }
 
+/** Clips (escenas «clip») que usa un spec explicativo, sin repetir. */
+export const clipsDelSpec = (spec) =>
+  spec?.plantilla === "explicativo" ? [...new Set(spec.contenido.escenas.filter((e) => e.tipo === "clip").map((e) => e.archivo))] : [];
+
+/** Segundos de un video o audio, medidos con ffprobe (el stream de video si lo hay). */
+export function duracionMedia(archivo) {
+  const leer = (args) => Number(correr("ffprobe", ["-v", "error", ...args, "-of", "csv=p=0", archivo]).stdout.trim().split(/\r?\n/)[0]);
+  const video = leer(["-select_streams", "v:0", "-show_entries", "stream=duration"]);
+  return Number.isFinite(video) && video > 0 ? video : leer(["-show_entries", "format=duration"]);
+}
+
+/**
+ * Arma public/actual/ con lo que leen las plantillas: capturas, voz, archivos
+ * de la marca y clips del trabajo. Devuelve los segundos de cada clip.
+ */
+export function prepararActual(t, spec) {
+  fs.rmSync(ACTUAL, { recursive: true, force: true });
+  copiarDir(path.join(t.dir, "capturas"), path.join(ACTUAL, "capturas"));
+  copiarDir(path.join(t.dir, "audio"), path.join(ACTUAL, "audio"));
+  copiarDir(path.join(dirCliente(t.cliente), "activos"), path.join(ACTUAL, "marca"));
+  const clips = {};
+  for (const archivo of clipsDelSpec(spec)) {
+    const origen = path.join(t.dir, archivo);
+    if (!fs.existsSync(origen)) continue;
+    fs.mkdirSync(path.dirname(path.join(ACTUAL, archivo)), { recursive: true });
+    fs.copyFileSync(origen, path.join(ACTUAL, archivo));
+    clips[archivo] = duracionMedia(origen);
+  }
+  return clips;
+}
+
 /** Texto sin tildes ni mayúsculas, para comparar palabras. */
 export const normalizar = (t) =>
   t

@@ -10,7 +10,7 @@ pueden retomar cualquier trabajo leyendo su carpeta `trabajos/<cliente>/<id>/`.
 | 1 | Perfil del cliente (una vez por cliente) | respuestas del cliente + CSS de su web o brand book | `clientes/<c>/marca.json`, `copy.md`, `activos/` | el cliente |
 | 2 | Brief | [preguntas.md](preguntas.md) | `brief.json` | — |
 | 3 | Copy | brief + marca | `copy.json` | **el cliente** |
-| 4 | Tipo y plan | brief + copy + [catálogo](catalogo/LEEME.md) | `spec.json` (animación) o `plan-avatar.json` (avatar) | **el cliente** (incluye el gasto) |
+| 4 | Tipo y plan | brief + copy + [catálogo](catalogo/LEEME.md) | `spec.json` (animación), o `plan-avatar.json` + `spec.json` de montaje (avatar) | **el cliente** (incluye el gasto) |
 | 4b | Propuestas visuales | spec + variantes de `marca.json` | `propuestas/` (3 opciones) y `spec.visual` | **el cliente** elige una |
 | 5 | Activos | spec o plan | capturas, voz, imágenes, clips + `activos.json` | gasto de créditos |
 | 6 | Montaje | todo lo anterior | `salida/*.mp4` + `manifiesto.json` | — |
@@ -25,7 +25,8 @@ gasta algo (créditos, tiempo de render, presupuesto) se corre
 > los pasos 3, 5 y 8: `npm run requisitos -- <cliente>/<id>`. Dice qué
 > programas locales faltan y qué **conectores MCP** necesita ese trabajo
 > (ElevenLabs para la voz en off, un generador de imágenes para el avatar,
-> Meta Ads para subir). Quien corre el proceso comprueba que estén conectados
+> Meta Ads para subir) y si está la clave `FAL_KEY` para los clips de avatar.
+> Quien corre el proceso comprueba que estén conectados
 > **antes** del paso; si falta uno, avisa qué falta y cómo conectarlo, y ofrece
 > la alternativa. Detalle en [REQUISITOS.md](REQUISITOS.md).
 
@@ -98,9 +99,16 @@ Con el objetivo y el estilo del brief, se elige el tipo en la tabla de
   de sitios se declaran en `capturas`.
 - **Avatar** (`avatar-ugc`, `avatar-pantalla`, `voz-en-off-broll`, `dualcast`):
   `plan-avatar.json`, con un prompt de imagen y uno de video por escena,
-  armados con [catalogo/prompts/](catalogo/prompts/) y la ficha del tipo.
+  armados con [catalogo/prompts/](catalogo/prompts/) y la ficha del tipo, y
+  `spec.json` de **montaje**: un `explicativo` donde cada clip es una escena
+  `clip` (`archivo: activos/<escena>.mp4`) y su `voz` es el mismo guion del
+  plan. Se pueden sumar escenas animadas (`capturas`, `lista`, `cierre`).
+  `npm run nuevo -- <c>/<id> --tipo avatar-ugc` crea los dos. El dualcast (dos
+  voces) no tiene montaje en el motor.
 
-El cliente aprueba el plan y el costo estimado antes del paso 5.
+El cliente aprueba el plan y el costo estimado antes del paso 5. Con avatar,
+`npm run clip -- <c>/<id> todas` estima el costo de todos los clips sin gastar
+nada (todavía sin imágenes ni voz: usa las duraciones del plan).
 
 ## Paso 4b · Propuestas visuales
 
@@ -122,9 +130,11 @@ solo cambia lo visual.
 
 ## Paso 5 · Activos
 
-**Necesita:** con voz en off, el **conector MCP de ElevenLabs**; con avatar,
-un generador de imágenes con referencias (por ejemplo el conector MCP de
-Canva) y un generador de video externo. Se comprueban antes de empezar el paso.
+**Necesita:** con voz en off o avatar que habla, el **conector MCP de
+ElevenLabs**; con avatar, un generador de imágenes con referencias (por
+ejemplo el conector MCP de Canva) y la clave de fal.ai en la variable de
+entorno `FAL_KEY` (o un generador de video externo). Se comprueban antes de
+empezar el paso.
 
 Todo lo que se genera se registra en `activos.json`: archivo, herramienta,
 modelo, parámetros, prompt y hash. **Lo generado no se regenera en silencio**:
@@ -139,9 +149,30 @@ otra vez.
   exacto; se genera **una** toma con la voz de la marca, se transcribe con
   tiempos por palabra y se registra con `npm run voz -- <c>/<id> registrar …`.
   Detalle en [catalogo/prompts/voz.md](catalogo/prompts/voz.md).
-- **Avatar**: primero la hoja de personaje (cara de referencia), después una
-  imagen por escena y después el clip por escena, siempre con las mismas
-  referencias, la misma línea de voz y el mismo acento.
+- **Avatar**, en este orden:
+  1. **Hoja de personaje** (cara de referencia) y una **imagen por escena**,
+     siempre con las mismas referencias. Cada imagen se registra en
+     `activos.json`.
+  2. **Una sola toma de voz** para todo el anuncio, igual que la voz en off:
+     `npm run voz -- <c>/<id> texto` da el texto (las líneas `voz` del
+     montaje), se genera con ElevenLabs y se registra con
+     `npm run voz -- … registrar`. Así la voz y el acento son idénticos en
+     todos los clips.
+  3. **Clips**: `npm run clip -- <c>/<id> <escena>` muestra modelo, entradas
+     y costo sin gastar, y deja en `activos/entradas/<escena>.wav` el tramo
+     de voz que le toca a esa escena, para escucharlo. Con el OK del gasto,
+     `npm run clip -- <c>/<id> <escena> --gastar` lo genera en fal.ai y lo
+     registra en `activos.json` (herramienta, modelo, prompt, entradas,
+     hash). Las escenas que hablan van con lip-sync (HeyGen Avatar 4 por
+     defecto: la imagen + su tramo de la toma); las que no hablan, de imagen
+     a video (Kling 2.5 Turbo Pro por defecto). `npm run clip -- modelos`
+     lista las alternativas y sus precios.
+  4. Un clip hecho afuera (Google Flow, ElevenLabs, Hedra…) se registra con
+     `npm run clip -- <c>/<id> <escena> registrar --video <archivo> --herramienta "<nombre>"`.
+  - Un clip ya generado no se regenera sin `--forzar`, y si la espera se
+    corta, `npm run clip -- … <escena> retomar` lo baja sin pagarlo de nuevo.
+  - Si cambia la toma de voz, `validar` marca los clips de lip-sync hechos
+    con la anterior: la boca ya no coincide.
 - **Música**: solo con licencia anotada en `motor/public/musica/LICENCIAS.md`.
 - **Efectos de sonido**: `npm run sonidos` (fórmulas fijas, sin costo).
 
@@ -151,8 +182,16 @@ otra vez.
   normaliza el volumen a -14 LUFS (si hay voz o música) y escribe
   `salida/manifiesto.json` con los hashes de entradas y salidas. Si las entradas
   no cambiaron, avisa si el video salió idéntico al anterior.
-- Avatar: por ahora el montaje es externo (CapCut u otro editor), siguiendo el
-  orden de escenas del plan. Las escenas con clip son la próxima mejora del motor.
+- Avatar: el mismo `npm run render` con el `spec.json` de montaje. Cada
+  escena `clip` muestra su MP4 a pantalla completa (recortado si no tiene la
+  forma del formato; `encuadre` elige qué parte se ve), con el logo y los
+  subtítulos de la marca encima, y corta directo a la escena siguiente. El
+  clip va mudo y suena la toma de voz, así la boca coincide con lo que se
+  oye. Si un clip es más corto que su escena, queda quieto en su último
+  cuadro y `validar` lo avisa. Se mezclan con escenas animadas, por ejemplo
+  un `cierre` con el botón.
+- Dualcast (dos voces): el montaje sigue siendo en un editor, en el orden de
+  escenas del plan.
 
 ## Paso 7 · Control de calidad
 
@@ -196,8 +235,9 @@ pausa.
 
 - **Otra sesión de Claude u otro equipo**: copiar `fabrica-creativos/` sin
   `motor/node_modules/`, `motor/public/actual/` ni `trabajos/`; correr
-  `npm ci` y después `npm run requisitos` en `motor/`, y conectar los
-  conectores MCP que se vayan a usar. En Claude, la skill está en
+  `npm ci` y después `npm run requisitos` en `motor/`, conectar los
+  conectores MCP que se vayan a usar y, para generar clips de avatar, cargar
+  la clave de fal.ai en la variable de entorno `FAL_KEY` de esa máquina. En Claude, la skill está en
   `claude/SKILL.md`. No hace falta nada de afuera del kit: si un perfil de
   cliente apunta a un archivo de tokens que no viajó, `validar` avisa y sigue.
 - **Otro modelo**: alcanza con darle este archivo, `preguntas.md`,

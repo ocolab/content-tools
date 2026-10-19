@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { bundle } from "@remotion/bundler";
 import { ensureBrowser, renderMedia, selectComposition } from "@remotion/renderer";
-import { ACTUAL, MOTOR, PUBLICO, aplicarVariante, copiarDir, correr, dirCliente, escribirJson, fallar, hoy, leerJson, sha256, sha256Archivo, version } from "./comun.mjs";
+import { MOTOR, PUBLICO, aplicarVariante, correr, dirCliente, escribirJson, fallar, hoy, leerJson, prepararActual, sha256, sha256Archivo, version } from "./comun.mjs";
 import { validarTrabajo } from "./validar.mjs";
 
 const arg = process.argv[2];
@@ -17,7 +17,8 @@ if (errores.length) {
   fallar("No se renderiza con errores de validación.");
 }
 const { trabajo: t, spec, marca } = datos;
-if (!spec) fallar("Este trabajo no tiene spec.json: el motor solo renderiza los tipos de animación.");
+if (!spec)
+  fallar("Este trabajo no tiene spec.json. Para montar clips de avatar en el motor, armá un explicativo con escenas «clip» (motor/ejemplos/montaje-avatar.json).");
 
 const i = process.argv.indexOf("--formatos");
 const formatos = i > 0 ? process.argv[i + 1].split(",") : spec.formatos;
@@ -25,13 +26,11 @@ for (const f of formatos) if (!spec.formatos.includes(f)) fallar(`El spec no inc
 
 const conVoz = spec.plantilla === "explicativo" && spec.voz.usar;
 const palabras = conVoz ? datos.palabras : null;
-const normalizarVolumen = conVoz || Boolean(spec.audio.musica);
+const audioDeClips = spec.plantilla === "explicativo" && spec.contenido.escenas.some((e) => e.tipo === "clip" && e.audio_del_clip);
+const normalizarVolumen = conVoz || audioDeClips || Boolean(spec.audio.musica);
 
 // 1. Archivos del trabajo y de la marca a public/actual (se borra en cada render).
-fs.rmSync(ACTUAL, { recursive: true, force: true });
-copiarDir(path.join(t.dir, "capturas"), path.join(ACTUAL, "capturas"));
-copiarDir(path.join(t.dir, "audio"), path.join(ACTUAL, "audio"));
-copiarDir(path.join(dirCliente(t.cliente), "activos"), path.join(ACTUAL, "marca"));
+const clips = prepararActual(t, spec);
 
 // 2. Empaquetado y navegador fijo de Remotion.
 console.log("· Preparando el navegador y el paquete…");
@@ -68,6 +67,7 @@ const manifiesto = {
     marca_sha256: sha256Archivo(path.join(dirCliente(t.cliente), "marca.json")),
     voz_sha256: conVoz ? sha256Archivo(path.join(t.dir, "audio", "voz.mp3")) : null,
     capturas_sha256: hashDir(path.join(t.dir, "capturas")),
+    clips_sha256: Object.keys(clips).length ? Object.fromEntries(Object.keys(clips).map((a) => [a, sha256Archivo(path.join(t.dir, a))])) : null,
     activos_marca_sha256: hashDir(path.join(dirCliente(t.cliente), "activos")),
     plantillas_sha256: hashDir(path.join(MOTOR, "src")),
     render_sha256: sha256Archivo(path.join(MOTOR, "scripts", "render.mjs")),
@@ -84,7 +84,7 @@ const huella = (archivo, flujo) =>
 
 for (const formato of formatos) {
   const id = `${spec.plantilla}-${formato}`;
-  const inputProps = { spec, marca: aplicarVariante(marca, spec.visual?.variante), palabras };
+  const inputProps = { spec, marca: aplicarVariante(marca, spec.visual?.variante), palabras, clips };
   const composition = await selectComposition({ serveUrl, id, inputProps });
   const crudo = path.join(salidaDir, `.crudo-${formato}.mp4`);
   let ultimo = -1;

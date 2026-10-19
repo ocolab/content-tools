@@ -201,6 +201,7 @@ const Base = {
   visual: z.strictObject({ variante: slug }).optional().describe("variante de marca.json elegida en las propuestas"),
 };
 const ruta = z.string().regex(/^capturas\/[a-z0-9-]+\.png$/);
+export const archivoClip = z.string().regex(/^activos\/[a-z0-9-]+\.mp4$/, "un MP4 en activos/ del trabajo, por ejemplo activos/gancho.mp4");
 const linea = (max) => texto(max).describe("*asteriscos* marcan el énfasis");
 
 const Par = z.strictObject({ es: texto(28), en: texto(28) });
@@ -248,6 +249,14 @@ const Escena = z.discriminatedUnion("tipo", [
     duracion,
   }),
   z.strictObject({ tipo: z.literal("cierre"), titulo: texto(72), boton: texto(26), voz, duracion }),
+  z.strictObject({
+    tipo: z.literal("clip"),
+    archivo: archivoClip.describe("clip de avatar o b-roll (npm run clip); tiene que estar registrado en activos.json"),
+    voz,
+    duracion,
+    encuadre: z.number().min(0).max(100).optional().describe("dónde se recorta el clip si no tiene la forma del lienzo, en %: 0 = se ve la parte de arriba, 100 = la de abajo; por defecto 40"),
+    audio_del_clip: z.boolean().optional().describe("true: suena el audio del clip (solo en videos sin voz en off). Por defecto el clip va mudo y suena la toma de voz"),
+  }),
 ]);
 
 export const SpecExplicativo = z.strictObject({
@@ -318,6 +327,7 @@ export const CUANDO = {
   copy: "mientras el copy no esté aprobado",
   voz_en_off: "si el video lleva voz en off",
   avatar: "si el anuncio lleva avatar",
+  dualcast: "si el anuncio es dualcast (dos voces)",
   publicar: "si el video se sube desde acá",
 };
 export const Requisitos = z.strictObject({
@@ -326,12 +336,14 @@ export const Requisitos = z.strictObject({
     z.strictObject({
       id: slug,
       nombre: texto(80),
-      tipo: z.enum(["local", "skill", "mcp", "externo"]).describe("local: programa en la máquina; skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"),
+      tipo: z
+        .enum(["local", "clave", "skill", "mcp", "externo"])
+        .describe("local: programa en la máquina; clave: variable de entorno con la clave de una API (se revisa que exista, nunca se muestra); skill: skill de Claude; mcp: conector que tiene que estar conectado en el agente; externo: herramienta fuera del kit"),
       cuando: z.enum(Object.keys(CUANDO)).describe("en qué trabajos hace falta"),
       obligatorio: z.boolean().describe("true: sin esto el paso no se puede hacer como está escrito"),
       pasos: z.array(z.number().int().min(1).max(8)),
       para: texto(200),
-      herramientas: z.array(z.string()).describe("comandos, skills o herramientas MCP; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"),
+      herramientas: z.array(z.string()).describe("comandos, skills, herramientas MCP o (tipo clave) nombres de variables de entorno; las MCP se buscan por el final del nombre, porque el prefijo cambia en cada instalación"),
       como_conectar: texto(400),
       si_falta: texto(500).describe("qué hace el agente: avisar, pedir que se conecte y ofrecer la alternativa"),
       costo: texto(200).nullable(),

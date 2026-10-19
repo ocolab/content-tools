@@ -1,8 +1,11 @@
 // Explicativo de 15–30 s: escenas encadenadas con voz en off y subtítulos
 // palabra por palabra. Duración y cortes salen de tiemposExplicativo().
+// Las escenas «clip» (avatar o b-roll) van mudas sobre la misma toma de voz:
+// el clip de lip-sync se hizo con el tramo de esa toma que cae en su escena.
 import React from "react";
 import { Html5Audio, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { Efecto, Lienzo, Logo, Musica, ZonaSegura } from "../componentes/Base";
+import { FondoClip, LogoSobreClip } from "../escenas/Clip";
 import { Armado, Bilingue, Buscador, Capturas, Cierre, Gancho, Lista } from "../escenas/Escenas";
 import { ConMarca, estiloEnfasis, useMarca } from "../marca";
 import { LIENZOS, PalabraEnCuadros, entrada, lineal, tiemposExplicativo, useFormato } from "../tiempo";
@@ -33,14 +36,16 @@ export const agrupar = (palabras: PalabraEnCuadros[]) => {
   return grupos;
 };
 
-const Subtitulos: React.FC<{ palabras: PalabraEnCuadros[]; tam: number }> = ({ palabras, tam }) => {
+/** Sobre un clip, los subtítulos van en una placa con el fondo de la marca para que se lean sobre cualquier imagen. */
+const Subtitulos: React.FC<{ palabras: PalabraEnCuadros[]; tam: number; placa?: boolean }> = ({ palabras, tam, placa }) => {
   const frame = useCurrentFrame();
   const m = useMarca();
   const grupos = agrupar(palabras);
   const grupo = [...grupos].reverse().find((g) => g[0].desde <= frame);
   if (!grupo) return null;
+  const conPlaca = placa ? { background: m.colores.fondo, padding: `${Math.round(tam * 0.22)}px ${Math.round(tam * 0.42)}px`, borderRadius: m.forma.radio, boxShadow: m.forma.sombra } : {};
   return (
-    <div style={{ textAlign: "center", fontSize: tam, lineHeight: 1.15, fontWeight: m.tipografia.peso_titulo, letterSpacing: "-0.01em" }}>
+    <div style={{ textAlign: "center", fontSize: tam, lineHeight: 1.15, fontWeight: m.tipografia.peso_titulo, letterSpacing: "-0.01em", ...conPlaca }}>
       {grupo.map((p, i) => (
         <span key={i} style={frame >= p.desde && frame < p.hasta ? { ...estiloEnfasis(m), fontWeight: m.tipografia.peso_titulo } : { color: m.colores.texto }}>
           {p.texto}
@@ -73,29 +78,35 @@ const Marco: React.FC<{ escena: Escena; frames: number; palabras: PalabraEnCuadr
   const deriva = lineal(frame, 0, frames, 1, 1.025);
   const efectos = props.spec.audio.efectos;
   const comunes = { area, frames, efectos };
+  const clip = escena.tipo === "clip" ? escena : null;
+  const altoLogo = formato === "9x16" ? 40 : 42;
   return (
-    <ZonaSegura>
-      {conEncabezado && (
-        <div style={{ height: ALTO_ENCABEZADO, display: "flex", alignItems: "flex-start", justifyContent: marca.estilo.alineacion === "centro" ? "center" : "flex-start" }}>
-          <Logo alto={formato === "9x16" ? 40 : 42} />
+    <>
+      {/* Corte directo, como en un Reel: un fundido desde el fondo entre dos clips parece un parpadeo. */}
+      {clip && <FondoClip escena={clip} frames={frames} segundos={props.clips?.[clip.archivo]} />}
+      <ZonaSegura>
+        {conEncabezado && (
+          <div style={{ height: ALTO_ENCABEZADO, display: "flex", alignItems: "flex-start", justifyContent: marca.estilo.alineacion === "centro" ? "center" : "flex-start" }}>
+            {clip ? <LogoSobreClip alto={altoLogo} /> : <Logo alto={altoLogo} />}
+          </div>
+        )}
+        <div style={{ opacity: aparece, transform: `translateY(${(1 - aparece) * 24}px) scale(${deriva})`, transformOrigin: "50% 50%" }}>
+          {escena.tipo === "gancho" && <Gancho escena={escena} {...comunes} />}
+          {escena.tipo === "buscador" && <Buscador escena={escena} {...comunes} />}
+          {escena.tipo === "armado" && <Armado escena={escena} {...comunes} />}
+          {escena.tipo === "capturas" && <Capturas escena={escena} capturas={props.spec.capturas} {...comunes} />}
+          {escena.tipo === "lista" && <Lista escena={escena} {...comunes} />}
+          {escena.tipo === "bilingue" && <Bilingue escena={escena} {...comunes} />}
+          {escena.tipo === "cierre" && <Cierre escena={escena} {...comunes} />}
         </div>
-      )}
-      <div style={{ opacity: aparece, transform: `translateY(${(1 - aparece) * 24}px) scale(${deriva})`, transformOrigin: "50% 50%" }}>
-        {escena.tipo === "gancho" && <Gancho escena={escena} {...comunes} />}
-        {escena.tipo === "buscador" && <Buscador escena={escena} {...comunes} />}
-        {escena.tipo === "armado" && <Armado escena={escena} {...comunes} />}
-        {escena.tipo === "capturas" && <Capturas escena={escena} capturas={props.spec.capturas} {...comunes} />}
-        {escena.tipo === "lista" && <Lista escena={escena} {...comunes} />}
-        {escena.tipo === "bilingue" && <Bilingue escena={escena} {...comunes} />}
-        {escena.tipo === "cierre" && <Cierre escena={escena} {...comunes} />}
-      </div>
-      {conSubtitulos && (
-        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: ALTO_SUBTITULOS, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Subtitulos palabras={palabras} tam={formato === "9x16" ? 54 : 50} />
-        </div>
-      )}
-      {efectos && !primera && <Efecto en={0} sonido="barrido" volumen={0.35} />}
-    </ZonaSegura>
+        {conSubtitulos && (
+          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: ALTO_SUBTITULOS, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Subtitulos palabras={palabras} tam={formato === "9x16" ? 54 : 50} placa={Boolean(clip)} />
+          </div>
+        )}
+        {efectos && !primera && <Efecto en={0} sonido="barrido" volumen={0.35} />}
+      </ZonaSegura>
+    </>
   );
 };
 

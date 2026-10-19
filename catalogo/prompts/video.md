@@ -1,7 +1,18 @@
 # Prompts de video
 
-Para animar una imagen ya aprobada (ver [imagen.md](imagen.md)) con un modelo
-de imagen a video que también hable. En inglés, por la misma razón.
+Para animar una imagen ya aprobada (ver [imagen.md](imagen.md)). En inglés,
+por la misma razón.
+
+## Dos formas de que el avatar hable
+
+| Forma | Cómo | Voz | Prompt |
+|---|---|---|---|
+| **Lip-sync** (la del kit, `npm run clip`) | La imagen de la escena + el tramo de la toma de voz de ElevenLabs que le toca | La misma en todos los clips, y la que suena en el montaje | HeyGen Avatar 4 no usa prompt (solo `--estilo stable` o `expressive`). OmniHuman y Kling Avatar aceptan uno: solo `CÁMARA` y gestos (plantilla «Lip-sync» abajo), sin guion, voz ni acento |
+| **El modelo habla solo** (Veo en Google Flow, Kling o Seedance con audio) | El modelo inventa la voz a partir del prompt | Cambia un poco entre clips | La fórmula completa de abajo, con `GUION`, `VOZ` y `ACENTO` |
+
+Para el b-roll (nadie habla) las dos son iguales: imagen a video con la
+plantilla «Sin hablar». En `plan-avatar.json`, `{{guion}}`, `{{voz}}` y
+`{{acento}}` se reemplazan solos al generar.
 
 ## Cómo se arma un prompt de video
 
@@ -93,6 +104,17 @@ say: "{{line}}". {{VOZ}} {{ACENTO}}
 One uninterrupted shot: no edits, no scene changes.
 ```
 
+**Lip-sync (con un modelo que acepta prompt)**
+
+```text
+{{CÁMARA}} The person speaks to the lens {{MIENTRAS, optional}}. Same person,
+clothes and place as in the reference. Nothing written on screen, no logos or
+watermarks. One uninterrupted shot, no edits.
+```
+
+El audio manda: el prompt solo dice cómo se mueve la cámara y qué hace con
+las manos y la cabeza.
+
 **Sin hablar (b-roll para voz en off)**
 
 ```text
@@ -122,4 +144,5 @@ Para el turno siguiente se usa la misma imagen y se cambia quién habla.
 | La pantalla se deforma o cambia | Plano más abierto, o mostrar el sitio con el motor en la escena siguiente |
 | Manos raras | Pedir «five fingers, believable grip» en la imagen; evitar gestos con los dedos |
 | Aparecen textos o logos | Agregar «nothing written on screen, no logos or watermarks» |
-| La voz cambia | La misma línea `VOZ` exacta y la misma sesión; o generar la voz aparte (ElevenLabs) y doblar |
+| La voz cambia | Usar lip-sync con la toma de ElevenLabs (`npm run clip`); con un modelo que habla solo, la misma línea `VOZ` exacta y la misma sesión |
+| La boca no coincide | Revisar el tramo en `activos/entradas/<escena>.wav`; si cambió la toma de voz, `validar` lo marca y hay que generar el clip de nuevo |

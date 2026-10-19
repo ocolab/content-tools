@@ -18,7 +18,11 @@ uso que explicado.
 
 1. Imagen por escena con la plantilla «Escena sin hablar» de
    [imagen.md](../prompts/imagen.md) §7 (acción + lugar y luz + plano).
-2. Clip por escena con la plantilla «Sin hablar» de
-   [video.md](../prompts/video.md): siempre «no talking, mouth closed».
-3. Voz en off con ElevenLabs ([voz.md](../prompts/voz.md)).
-4. Montaje en un editor: clips, voz, subtítulos y cierre.
+2. Voz en off con ElevenLabs ([voz.md](../prompts/voz.md)): una toma; de sus
+   tiempos sale cuánto dura cada escena.
+3. Clip por escena con `npm run clip` (imagen a video, `guion: null` en el
+   plan) y la plantilla «Sin hablar» de [video.md](../prompts/video.md):
+   siempre «no talking, mouth closed». El script elige la duración del modelo
+   que cubre la escena.
+4. Montaje en el motor: escenas `clip` (mudas, sobre la voz en off) y una
+   escena `cierre`; `npm run render`.

@@ -1,7 +1,8 @@
 // Dice qué hace falta para usar el kit o para un trabajo, según
-// ../requisitos.json. Los programas locales los revisa acá; los conectores MCP
-// y las skills no se ven desde Node: los tiene que comprobar el agente que
-// corre el proceso (Claude u otro) y, si faltan, avisar antes del paso.
+// ../requisitos.json. Los programas locales y las claves de API (variables de
+// entorno: solo se mira que existan, nunca se muestran) los revisa acá; los
+// conectores MCP y las skills no se ven desde Node: los tiene que comprobar el
+// agente que corre el proceso (Claude u otro) y, si faltan, avisar antes del paso.
 // Uso: npm run requisitos [-- <cliente>/<id>] [--json]
 import fs from "node:fs";
 import path from "node:path";
@@ -29,10 +30,18 @@ function necesidades(arg) {
   const tipo = brief?.tipo ?? spec?.plantilla ?? null;
   let voz = "no";
   if (spec?.plantilla === "explicativo") voz = spec.voz.usar ? "si" : "no";
-  else if (tipo === "voz-en-off-broll") voz = "si";
+  // Con avatar, la voz es una toma de ElevenLabs que después mueve la boca (lip-sync).
+  else if (["voz-en-off-broll", "avatar-ugc", "avatar-pantalla"].includes(tipo)) voz = "si";
   else if (!tipo || tipo === "explicativo" || brief?.estilo === "mixto") voz = "quizas";
   const avatar = !brief ? "quizas" : ["avatar", "mixto"].includes(brief.estilo) ? "si" : "no";
-  return { siempre: "si", copy: copy?.aprobado ? "no" : "si", voz_en_off: voz, avatar, publicar: "quizas" };
+  const dualcast = tipo === "dualcast" ? "si" : brief?.tipo ? "no" : "quizas";
+  return { siempre: "si", copy: copy?.aprobado ? "no" : "si", voz_en_off: voz, avatar, dualcast, publicar: "quizas" };
+}
+
+/** Claves de API: que la variable de entorno exista. El valor nunca se muestra ni se guarda. */
+function revisarClave(req) {
+  const faltan = req.herramientas.filter((v) => !process.env[v]);
+  return { ok: !faltan.length, detalle: faltan.length ? `falta la variable de entorno ${faltan.join(" y ")}` : `${req.herramientas.join(", ")} definida` };
 }
 
 function revisarLocal(req) {
@@ -55,7 +64,7 @@ function revisarLocal(req) {
 const nec = necesidades(arg);
 const resultado = requisitos.map((req) => {
   const necesario = nec[req.cuando];
-  const local = req.tipo === "local" ? revisarLocal(req) : null;
+  const local = req.tipo === "local" ? revisarLocal(req) : req.tipo === "clave" ? revisarClave(req) : null;
   const estado = local ? (local.ok ? "ok" : local.ok === false ? "falta" : "revisar") : req.tipo === "externo" ? "fuera_del_kit" : "comprobar_en_el_agente";
   return { ...req, necesario, estado, detalle: local?.detalle ?? null };
 });
@@ -71,6 +80,7 @@ const motivo = (x) => (x.necesario === "si" ? "hace falta para este trabajo" : "
 console.log(arg ? `Requisitos de ${arg}\n` : "Requisitos del kit (pasá <cliente>/<id> para ver los de un trabajo)\n");
 const grupos = [
   ["Programas locales (revisados acá)", (x) => x.tipo === "local"],
+  ["Claves de API (variables de entorno, revisadas acá; el valor nunca se muestra)", (x) => x.tipo === "clave"],
   ["Conectores MCP y skills: el agente tiene que comprobar que estén conectados ANTES del paso", (x) => x.tipo === "mcp" || x.tipo === "skill"],
   ["Herramientas fuera del kit", (x) => x.tipo === "externo"],
 ];
@@ -92,5 +102,5 @@ for (const [titulo, filtro] of grupos) {
 }
 const sobran = resultado.filter((x) => x.necesario === "no");
 if (sobran.length) console.log(`No hacen falta para este trabajo: ${sobran.map((x) => x.nombre).join(", ")}.\n`);
-console.log(bloquea.length ? `${bloquea.length} requisito(s) local(es) faltan: resolvelos antes de seguir.` : "Locales en orden. Los conectores marcados con ! se comprueban en el agente.");
+console.log(bloquea.length ? `${bloquea.length} requisito(s) obligatorio(s) faltan: resolvelos antes de seguir.` : "Locales en orden. Los conectores marcados con ! se comprueban en el agente.");
 process.exit(bloquea.length ? 1 : 0);

@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { bundle } from "@remotion/bundler";
 import { ensureBrowser, renderStill, selectComposition } from "@remotion/renderer";
-import { ACTUAL, MOTOR, PUBLICO, aplicarVariante, copiarDir, correr, dirCliente, escribirJson, fallar, hoy } from "./comun.mjs";
+import { MOTOR, PUBLICO, aplicarVariante, correr, dirCliente, escribirJson, fallar, hoy, prepararActual } from "./comun.mjs";
 import { tiemposExplicativo } from "../src/calculo.js";
 import { validarTrabajo } from "./validar.mjs";
 
@@ -41,16 +41,13 @@ function cuadrosClave() {
   const escenas = spec.contenido.escenas;
   const enEscena = (k, fraccion) => tm.escenas[k].desde + Math.min(tm.escenas[k].frames - 3, Math.floor(tm.escenas[k].frames * fraccion));
   const cuadros = [{ nombre: "inicio", frame: tm.escenas[0].desde + Math.min(tm.escenas[0].frames - 3, 75) }];
-  const medio = escenas.findIndex((e) => ["bilingue", "buscador", "armado", "capturas"].includes(e.tipo));
+  const medio = escenas.findIndex((e, k) => k > 0 && ["bilingue", "buscador", "armado", "capturas", "clip"].includes(e.tipo));
   if (medio > 0) cuadros.push({ nombre: escenas[medio].tipo, frame: enEscena(medio, 0.8) });
   cuadros.push({ nombre: "cierre", frame: enEscena(escenas.length - 1, 0.95) });
   return cuadros;
 }
 
-fs.rmSync(ACTUAL, { recursive: true, force: true });
-copiarDir(path.join(t.dir, "capturas"), path.join(ACTUAL, "capturas"));
-copiarDir(path.join(t.dir, "audio"), path.join(ACTUAL, "audio"));
-copiarDir(path.join(dirCliente(t.cliente), "activos"), path.join(ACTUAL, "marca"));
+const clips = prepararActual(t, spec);
 
 console.log("· Preparando el navegador y el paquete…");
 await ensureBrowser();
@@ -63,7 +60,7 @@ const cuadros = cuadrosClave();
 const registro = { version: 1, trabajo: `${t.cliente}/${t.id}`, fecha: hoy(), formato, cuadros, variantes: [] };
 
 for (const [n, v] of variantes.entries()) {
-  const inputProps = { spec: { ...spec, visual: { variante: v } }, marca: aplicarVariante(marca, v), palabras };
+  const inputProps = { spec: { ...spec, visual: { variante: v } }, marca: aplicarVariante(marca, v), palabras, clips };
   const composition = await selectComposition({ serveUrl, id: `${spec.plantilla}-${formato}`, inputProps });
   const archivos = [];
   for (const c of cuadros) {

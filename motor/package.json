@@ -10,6 +10,7 @@
     "sonidos": "node scripts/sonidos.mjs",
     "capturar": "node scripts/capturar.mjs",
     "voz": "node scripts/voz.mjs",
+    "clip": "node scripts/clip.mjs",
     "render": "node scripts/render.mjs",
     "qc": "node scripts/qc.mjs",
     "estudio": "node scripts/estudio.mjs",

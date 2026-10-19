@@ -99,7 +99,7 @@ El dolor con las palabras que usaría ese cliente, no con las nuestras.
 | Opción | Qué es | A favor | En contra |
 |---|---|---|---|
 | `animacion` | Texto, interfaz y capturas animadas; voz en off opcional | Sale igual cada vez, sin costo por generación, se ve la marca | Menos cercano |
-| `avatar` | Una persona generada con IA que habla a cámara o aparece en escenas | Cercanía, confianza, formato nativo de Reels | Cuesta créditos, hay que cuidar que la cara no cambie, se declara IA |
+| `avatar` | Una persona generada con IA que habla a cámara o aparece en escenas | Cercanía, confianza, formato nativo de Reels | Cuesta créditos (los clips, unos USD 2,50 por anuncio en fal.ai a octubre de 2026, más la voz y los repetidos; `npm run clip -- <c>/<id> todas` da el número), hay que cuidar que la cara no cambie, se declara IA |
 | `mixto` | Gancho con avatar (3 s) y explicación animada | Lo mejor de los dos | Más pasos |
 
 **6. Solo si eligió avatar o mixto:** (`avatar`)
