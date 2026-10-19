@@ -21,7 +21,7 @@
 //   npm run clip -- modelos
 import fs from "node:fs";
 import path from "node:path";
-import { cargarClaves, correr, duracionMedia, escribirJson, fallar, hoy, leerJson, sha256, sha256Archivo, trabajo } from "./comun.mjs";
+import { KIT, cargarClaves, correr, duracionMedia, escribirJson, fallar, hoy, leerJson, sha256, sha256Archivo, trabajo } from "./comun.mjs";
 import { FPS, tiemposExplicativo } from "../src/calculo.js";
 import { validarTrabajo } from "./validar.mjs";
 
@@ -223,6 +223,29 @@ function mostrar(p) {
   console.log(`  Costo estimado: ${usd(p.costo)} · ${modelo.precio} · precio leído el ${PRECIOS_LEIDOS} en fal.ai/models, puede cambiar`);
 }
 
+/**
+ * En un trabajo de la rutina diaria, lo gastado ese día en clips (todas sus
+ * piezas) más este clip no puede pasar el tope de clientes/<c>/rutina.json.
+ */
+function revisarTope(costoNuevo) {
+  const dia = datos.brief?.rutina?.fecha;
+  const rutinaPath = path.join(KIT, "clientes", t.cliente, "rutina.json");
+  if (!dia || !fs.existsSync(rutinaPath)) return;
+  const tope = leerJson(rutinaPath).presupuesto_diario_usd;
+  if (tope === null || tope === undefined) return;
+  const dirTrabajos = path.dirname(t.dir);
+  let gastado = 0;
+  for (const id of fs.readdirSync(dirTrabajos)) {
+    const brief = path.join(dirTrabajos, id, "brief.json");
+    const registro = path.join(dirTrabajos, id, "activos.json");
+    if (!fs.existsSync(brief) || !fs.existsSync(registro) || leerJson(brief).rutina?.fecha !== dia) continue;
+    gastado += leerJson(registro).activos.reduce((s, a) => s + (Number(a.parametros?.costo_estimado_usd) || 0), 0);
+  }
+  if (gastado + costoNuevo > tope)
+    fallar(`El ${dia} ya van ${usd(gastado)} en clips y este suma ${usd(costoNuevo)}: pasa el tope diario de ${usd(tope)} de la rutina. Para seguir, el cliente tiene que subir el tope en clientes/${t.cliente}/rutina.json.`);
+  console.log(`  Tope diario de la rutina: ${usd(gastado + costoNuevo)} de ${usd(tope)}`);
+}
+
 const dataUri = (archivo) => {
   const ext = path.extname(archivo).slice(1).toLowerCase();
   const tipo = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", wav: "audio/wav", mp3: "audio/mpeg" }[ext];
@@ -332,6 +355,7 @@ if (accion === "retomar") {
   yaEsta();
   const p = preparar(escena);
   mostrar(p);
+  revisarTope(p.costo);
   const estilo = opcion("estilo") ?? "stable";
   if (!["stable", "expressive"].includes(estilo)) fallar("--estilo es stable o expressive");
   const datosEntrada = { imagen: dataUri(p.imagen), audio: p.audio ? dataUri(p.audio) : undefined, prompt: p.prompt, segundos: p.segundos, estilo };

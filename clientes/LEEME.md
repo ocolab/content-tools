@@ -14,6 +14,7 @@ Cada perfil tiene:
 | `copy.md` | Las reglas de copy explicadas para personas: tono, foco actual, qué se puede afirmar y por qué |
 | `activos/` | Archivo de la tipografía con su licencia, y logo (todo lo que entra al video) |
 | `fuentes/` | Opcional: el brand book u otros documentos de los que salen los tokens (no entran al video) |
+| `rutina.json` | Después del primer video: qué se produce cada día, qué días, temas, tope de gasto, aprobación y publicación (paso 9 de [PROCESO.md](../PROCESO.md)). Esquema: [esquemas/rutina.schema.json](../esquemas/rutina.schema.json) |
 
 ## Design tokens: obligatorios, de la web o del brand book
 

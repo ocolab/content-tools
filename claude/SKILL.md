@@ -1,6 +1,6 @@
 ---
 name: fabrica-creativos
-description: Crea anuncios en video (Reels, historias, feed, TikTok) siguiendo el proceso reproducible de fabrica-creativos/ — brief con preguntas fijas, copy con la skill cro, elección del tipo de anuncio (animación o avatar humano digital), prompts de imagen, video y voz, render determinista con Remotion y control de calidad. Usala cuando pidan un anuncio en video, un creativo animado, un video con avatar, un brief de anuncio, renderizar o revisar un video de anuncio, o sumar un cliente o una herramienta al catálogo de creativos.
+description: Crea anuncios en video (Reels, historias, feed, TikTok) siguiendo el proceso reproducible de fabrica-creativos/ — brief con preguntas fijas, copy con la skill cro, elección del tipo de anuncio (animación o avatar humano digital), prompts de imagen, video y voz, render determinista con Remotion y control de calidad, y después del primer video de cada empresa, una rutina diaria con el setup ya hecho. Usala cuando pidan un anuncio en video, un creativo animado, un video con avatar, un brief de anuncio, renderizar o revisar un video de anuncio, o sumar un cliente o una herramienta al catálogo de creativos.
 ---
 
 # Fábrica de creativos
@@ -125,6 +125,31 @@ solo cuando lo apruebe. Sin `cro` disponible, usá `catalogo/prompts/copy.md`.
   7. `npm run render` y `npm run qc`, como cualquier explicativo. El dualcast
      (dos voces) se sigue montando en un editor.
 
+## Rutina diaria (paso 9): proponela vos
+
+El kit sirve para cualquier empresa, así que la rutina se arma con lo que
+necesita cada una, en `clientes/<c>/rutina.json`.
+
+1. **Cuándo:** apenas una empresa tiene su primer video terminado y entregado
+   (paso 8), si no tiene `rutina.json`. `npm run qc` lo recuerda con una ★.
+   No esperes a que te la pidan.
+2. **Proponer:** `npm run rutina -- <c> proponer` (con `--bases` si hay
+   trabajos de prueba que no sirven de base). Mostrale al usuario la
+   propuesta y hacé las preguntas R1 a R7 de `preguntas.md` con
+   AskUserQuestion: piezas, días, hora del aviso, temas, tope diario, cómo
+   aprueba el copy y cómo se publica. Ajustá `rutina.json` con sus respuestas.
+3. **Aprobar:** solo con su OK, `npm run rutina -- <c> aprobar --por "<nombre>"`.
+4. **Aviso diario (opcional):** ofrecé una tarea programada (skill
+   `schedule`) a la `hora_aviso` y en los `dias` de la rutina, que corra
+   `npm run rutina -- <c> hoy`, proponga el copy del día con el tema que le
+   toca (sin repetir los ganchos de `npm run rutina -- <c> estado`) y espere
+   el OK. La tarea nunca gasta ni publica sola.
+5. **Cada día:** el trabajo `<fecha>-<pieza>` sigue el proceso desde el paso
+   3: copy nuevo y OK, `spec.json` y `plan-avatar.json` con ese copy, costo
+   del día (`npm run clip -- … todas` y la voz con `estimate_only`) dentro del
+   tope y con OK, una toma de voz, clips, render, qc y entrega según
+   `publicacion`. `npm run clip --gastar` frena si se pasa el tope.
+
 ## Reglas
 
 - `npm run validar` antes de gastar créditos, renderizar o mostrar un video.
@@ -136,4 +161,5 @@ solo cuando lo apruebe. Sin `cro` disponible, usá `catalogo/prompts/copy.md`.
 - Nada se afirma sin estar en `marca.json`; el avatar no da testimonio; se
   declara el uso de IA.
 - Al terminar, mandá los MP4 de `salida/` y las hojas de `qc/` con
-  SendUserFile, y decí qué quedó sin verificar.
+  SendUserFile, y decí qué quedó sin verificar. Si es el primer video de la
+  empresa y no tiene rutina, proponela (paso 9).

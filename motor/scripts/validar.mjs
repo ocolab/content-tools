@@ -202,6 +202,15 @@ export function validarTrabajo(arg, { sinClips = false } = {}) {
   if (copy && revisarEsquema(Copy, copy, "copy.json", errores)) {
     const textos = [copy.propuesta_valor, ...copy.angulos.map((a) => a.gancho), copy.elegido.gancho, ...copy.elegido.titulo, ...copy.elegido.puntos, ...copy.elegido.guion.map((g) => g.texto), copy.elegido.boton];
     revisarCopy(textos, marca, "copy.json", errores, avisos);
+    // En la rutina diaria, un gancho que ya se usó se avisa.
+    if (brief?.rutina && !copy.elegido.gancho.includes("COMPLETAR")) {
+      const dirTrabajos = path.dirname(t.dir);
+      const repetido = fs
+        .readdirSync(dirTrabajos)
+        .filter((id) => id !== t.id && fs.existsSync(path.join(dirTrabajos, id, "copy.json")))
+        .find((id) => normalizar(leerJson(path.join(dirTrabajos, id, "copy.json")).elegido?.gancho ?? "") === normalizar(copy.elegido.gancho));
+      if (repetido) avisos.push(`copy.json: el gancho «${copy.elegido.gancho}» ya se usó en ${repetido}; la rutina no repite ganchos`);
+    }
     if (!marca.copy.cta_aprobados.includes(copy.elegido.boton)) avisos.push(`copy.json: el botón «${copy.elegido.boton}» no está en cta_aprobados de marca.json`);
     datos.copy = copy;
     ok.push(`copy.json (${copy.aprobado ? "aprobado" : "sin aprobar"})`);

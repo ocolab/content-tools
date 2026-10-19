@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "cliente": "cliente",
+  "activa": false,
+  "aprobada": null,
+  "dias": ["lun", "mar", "mie", "jue", "vie"],
+  "hora_aviso": "09:00",
+  "piezas": [
+    {
+      "id": "avatar",
+      "base": "primer-video",
+      "tipo": "avatar-ugc",
+      "formatos": ["9x16", "4x5"],
+      "plataformas": ["instagram_reels", "tiktok"],
+      "reutiliza": ["activos/presentadora.png"]
+    },
+    {
+      "id": "loop",
+      "base": "loop-de-prueba",
+      "tipo": "loop-6s",
+      "formatos": ["9x16"],
+      "plataformas": ["instagram_reels"],
+      "reutiliza": ["capturas/sitio.png"]
+    }
+  ],
+  "temas": ["COMPLETAR: un servicio", "COMPLETAR: una pregunta frecuente", "COMPLETAR: una objeción"],
+  "presupuesto_diario_usd": 3,
+  "aprobacion_copy": "cada_dia",
+  "publicacion": "entregar_mp4",
+  "notas": "Ejemplo: la rutina real la arma npm run rutina -- <cliente> proponer a partir de los trabajos terminados."
+}

@@ -11,6 +11,7 @@
     "capturar": "node scripts/capturar.mjs",
     "voz": "node scripts/voz.mjs",
     "clip": "node scripts/clip.mjs",
+    "rutina": "node scripts/rutina.mjs",
     "render": "node scripts/render.mjs",
     "qc": "node scripts/qc.mjs",
     "estudio": "node scripts/estudio.mjs",

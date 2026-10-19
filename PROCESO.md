@@ -1,6 +1,6 @@
 # Proceso: de un pedido a un anuncio en video
 
-Ocho pasos. Cada paso lee archivos del trabajo y deja un archivo nuevo que se
+Nueve pasos. Cada paso lee archivos del trabajo y deja un archivo nuevo que se
 valida contra su esquema (`esquemas/`). **Ningún paso depende de lo que se
 habló en una conversación**: una persona, Claude, otro modelo o un servicio web
 pueden retomar cualquier trabajo leyendo su carpeta `trabajos/<cliente>/<id>/`.
@@ -16,6 +16,7 @@ pueden retomar cualquier trabajo leyendo su carpeta `trabajos/<cliente>/<id>/`.
 | 6 | Montaje | todo lo anterior | `salida/*.mp4` + `manifiesto.json` | — |
 | 7 | Control de calidad | salida | `qc/qc.json` + hojas de contacto | **revisión humana** |
 | 8 | Entrega | video aprobado | registro y subida en pausa | **el cliente** (publicar) |
+| 9 | Rutina diaria (después del primer video de la empresa) | trabajos terminados | `clientes/<c>/rutina.json` y un trabajo por día | **el cliente** (la rutina, cada copy y cada gasto) |
 
 Los comandos `npm run …` se corren dentro de `motor/`. Antes de cada paso que
 gasta algo (créditos, tiempo de render, presupuesto) se corre
@@ -219,6 +220,47 @@ Se marca `"aprobado": true` en los activos usados, se anota el video en el
 registro que use el cliente (su planilla, su CRM o la nota de la campaña) y,
 **solo con el OK explícito del cliente**, se sube a la plataforma creado en
 pausa.
+
+## Paso 9 · Rutina diaria
+
+Cuando una empresa ya tiene su perfil (paso 1) y su **primer video
+terminado** (pasos 2 a 8), todo lo caro de armar ya está: los tokens y la
+variante visual, la voz de la marca, la presentadora o las capturas, el
+montaje que funcionó. Ese es el **setup**, y a partir de ahí se propone
+producir con él todos los días. `npm run qc` lo recuerda cuando la empresa
+todavía no tiene rutina. No se espera a que lo pidan: se propone.
+
+Cada empresa la ajusta a lo que necesita en `clientes/<c>/rutina.json`
+(esquema: [esquemas/rutina.schema.json](esquemas/rutina.schema.json)):
+
+| Campo | Qué decide la empresa |
+|---|---|
+| `piezas` | Qué sale cada día (hasta 5): cada una copia un trabajo terminado (`base`), de cualquier tipo del catálogo, con sus formatos y plataformas, y dice qué archivos reutiliza tal cual (`reutiliza`: la presentadora, capturas) |
+| `dias`, `hora_aviso` | Qué días se produce y a qué hora se arma el borrador y se avisa |
+| `temas` | Los temas o pilares que rotan: un tema por día, el mismo para todas las piezas del día |
+| `presupuesto_diario_usd` | Tope de gasto por día. `npm run clip --gastar` no lo deja pasar; igual cada gasto lleva su OK |
+| `aprobacion_copy` | El copy se aprueba cada día, o el de la semana entera de una vez |
+| `publicacion` | Se entregan los MP4, o se suben a la cuenta del cliente en pausa con su OK. Nunca se publica solo |
+
+1. **Proponer:** `npm run rutina -- <c> proponer` arma la propuesta con el
+   último trabajo terminado de cada tipo (o los que se elijan con
+   `--bases <id>,<id>`) y queda `"activa": false`. Se le muestra al cliente
+   y se ajusta con las preguntas R1 a R7 de [preguntas.md](preguntas.md).
+2. **Aprobar:** con el OK del cliente, `npm run rutina -- <c> aprobar --por "<nombre>"`
+   la activa y anota quién y cuándo. `npm run rutina -- <c> pausar` la frena.
+3. **Cada día** (o los días de la semana juntos, con `--hasta`):
+   `npm run rutina -- <c> hoy` abre `trabajos/<c>/<fecha>-<pieza>/` copiando
+   la base: brief con el tema del día, `copy.json` y los textos del spec y
+   del plan en `COMPLETAR`, y los archivos de `reutiliza` con su registro.
+   Voz, clips y render son nuevos. Después sigue el proceso de siempre desde
+   el paso 3: copy nuevo (sin repetir ganchos: `npm run rutina -- <c> estado`
+   los lista y `validar` avisa si uno se repite), OK, voz, clips, render,
+   control de calidad y entrega.
+4. **Seguimiento:** `npm run rutina -- <c> estado` dice en qué paso está cada
+   día, cuánto se gastó y qué ganchos ya se usaron.
+5. **Aviso diario (opcional):** a la `hora_aviso`, un recordatorio o una tarea
+   programada abre el día y propone el copy. Prepara, no gasta ni publica:
+   espera el OK como cualquier otro paso.
 
 ---
 

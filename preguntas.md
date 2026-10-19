@@ -127,3 +127,34 @@ Si es una regla permanente, va a `marca.json` (`copy.prohibidas` o
 
 El tipo de anuncio (`tipo`) **no se pregunta**: se elige en el paso 4 con la
 tabla de [catalogo/LEEME.md](catalogo/LEEME.md) y se le propone al cliente.
+
+## Rutina diaria (paso 9, después del primer video)
+
+Se hacen sobre la propuesta de `npm run rutina -- <c> proponer`, mostrándole
+al cliente qué sale de cada trabajo terminado. Cada respuesta va a
+`clientes/<c>/rutina.json`.
+
+**R1. ¿Qué querés publicar cada día?** (`piezas`)
+Una o varias piezas, cada una a partir de un video ya terminado: el avatar que
+habla, un loop de 6 s, un explicativo… Con sus formatos y plataformas.
+
+**R2. ¿Qué días?** (`dias`)
+Por ejemplo de lunes a viernes, o tres veces por semana.
+
+**R3. ¿A qué hora querés recibir el borrador del día?** (`hora_aviso`)
+O ninguna, si se arma a pedido.
+
+**R4. ¿Sobre qué temas o pilares vamos rotando?** (`temas`)
+Servicios, preguntas frecuentes, objeciones, casos de uso, fechas del rubro.
+Solo lo que se pueda afirmar con `marca.json`.
+
+**R5. ¿Cuánto es lo máximo que se puede gastar por día?** (`presupuesto_diario_usd`)
+Se propone lo que costó el primer video, con margen para repetir una toma. Es
+un tope: cada gasto igual se aprueba.
+
+**R6. ¿Cuándo aprobás el copy?** (`aprobacion_copy`)
+`cada_dia` o `semanal` (la semana entera de una vez).
+
+**R7. ¿Cómo se publica?** (`publicacion`)
+`entregar_mp4` (lo sube el cliente) o `subir_en_pausa` (se sube a su cuenta en
+pausa, con su OK). Nunca se publica solo.

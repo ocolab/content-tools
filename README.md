@@ -2,7 +2,8 @@
 
 Un proceso repetible para hacer anuncios en video (Reels, historias, feed,
 TikTok) a partir de lo que pide una empresa: perfil del cliente → brief → copy
-→ tipo de anuncio → activos → montaje → control de calidad. Funciona con
+→ tipo de anuncio → activos → montaje → control de calidad → **rutina diaria**
+con el setup ya hecho. Funciona con
 cualquier modelo de lenguaje, trae una skill para Claude y un motor de
 animación en Remotion.
 
@@ -32,6 +33,11 @@ npm run cliente -- mi-cliente --tokens brand_book    # perfil del cliente, para 
 npm run nuevo -- mi-cliente/primer-video --tipo loop-6s
 ```
 
+Con el primer video de una empresa terminado, el kit propone producir todos
+los días con ese mismo setup (`npm run rutina -- mi-cliente proponer`, paso 9
+de PROCESO.md). Cada empresa decide qué piezas, qué días, qué temas, cuánto
+gastar y cómo aprueba.
+
 Después se sigue [PROCESO.md](PROCESO.md) paso por paso. Con Claude, la
 carpeta [claude/](claude/SKILL.md) es la skill: se copia o se enlaza como
 `.claude/skills/fabrica-creativos/` en el proyecto donde se va a usar.
@@ -40,7 +46,7 @@ carpeta [claude/](claude/SKILL.md) es la skill: se copia o se enlaza como
 
 | Carpeta o archivo | Qué es | ¿Depende de un modelo? |
 |---|---|---|
-| [PROCESO.md](PROCESO.md) | Los 8 pasos, qué entra y qué sale de cada uno, quién aprueba | No |
+| [PROCESO.md](PROCESO.md) | Los 9 pasos, qué entra y qué sale de cada uno, quién aprueba, y la rutina diaria | No |
 | [REQUISITOS.md](REQUISITOS.md) y [requisitos.json](requisitos.json) | Programas, skills y conectores MCP que hacen falta, cuándo, y qué hacer si faltan | No |
 | [preguntas.md](preguntas.md) | Las preguntas del perfil del cliente y del brief, en orden | No |
 | [esquemas/](esquemas/) | JSON Schema de cada archivo del proceso: el contrato | No |
@@ -70,6 +76,7 @@ carpeta [claude/](claude/SKILL.md) es la skill: se copia o se enlaza como
 | Motor: `loop-6s` y `explicativo` | Listos y probados |
 | Tipos con avatar | Prompts y fichas listos; `npm run clip` genera los clips en fal.ai (lip-sync con la toma de voz y b-roll) o registra los hechos afuera. Probado sin generar: todavía no se pagó un clip real |
 | Montaje de clips de avatar en el motor | Listo y probado con clips locales (escena `clip` del explicativo). El dualcast se monta en un editor |
+| Rutina diaria por empresa (`npm run rutina`) | Lista: se propone después del primer video, cada empresa define piezas, días, temas, tope y aprobación |
 | Render idéntico en el 9:16 | 1 de 6 renders seguidos salió distinto; el render lo avisa (ver [motor/LEEME.md](motor/LEEME.md)) |
 
 ## Licencias y créditos

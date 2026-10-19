@@ -11,6 +11,7 @@ const texto = (max) => z.string().trim().min(1).max(max);
 export const FORMATOS = ["9x16", "4x5"];
 export const OBJETIVOS = ["reconocimiento", "trafico", "mensajes", "clientes_potenciales", "ventas"];
 export const ESTILOS = ["animacion", "avatar", "mixto"];
+export const PLATAFORMAS = ["instagram_reels", "instagram_feed", "instagram_stories", "facebook_feed", "facebook_reels", "facebook_stories", "tiktok"];
 export const TIPOS = {
   "loop-6s": "animacion",
   explicativo: "animacion",
@@ -140,14 +141,16 @@ export const Brief = z
         acento: texto(200),
       })
       .nullable(),
-    plataformas: z
-      .array(z.enum(["instagram_reels", "instagram_feed", "instagram_stories", "facebook_feed", "facebook_reels", "facebook_stories", "tiktok"]))
-      .min(1),
+    plataformas: z.array(z.enum(PLATAFORMAS)).min(1),
     formatos: z.array(z.enum(FORMATOS)).min(1),
     duracion_max: z.number().int().min(5).max(60),
     musica: z.enum(["sin_musica", "biblioteca_meta", "archivo_propio", "generada"]),
     tipo: z.enum(Object.keys(TIPOS)).nullable().describe("se completa en el paso 3"),
     notas: z.string().nullable(),
+    rutina: z
+      .strictObject({ pieza: slug, fecha, tema: texto(120) })
+      .optional()
+      .describe("solo en los trabajos que abre la rutina diaria (npm run rutina -- <c> hoy)"),
   })
   .superRefine((b, ctx) => {
     if (b.estilo !== "animacion" && !b.avatar)
@@ -351,6 +354,60 @@ export const Requisitos = z.strictObject({
   ),
 });
 
+// ---------------------------------------------------------------- clientes/<c>/rutina.json
+// La rutina diaria de una empresa: qué se produce cada día a partir de trabajos
+// ya terminados (el «setup»). Se propone después del primer video entregado
+// (npm run rutina -- <c> proponer) y la aprueba el cliente. Cada empresa
+// define sus piezas, días, temas, tope de gasto, aprobación y publicación.
+export const DIAS = ["lun", "mar", "mie", "jue", "vie", "sab", "dom"];
+const PiezaRutina = z.strictObject({
+  id: slug.describe("nombre corto de la pieza, por ejemplo «avatar» o «loop»"),
+  base: slug.describe("id de un trabajo terminado de la empresa (trabajos/<c>/<base>) que se copia cada día"),
+  tipo: z.enum(Object.keys(TIPOS)),
+  formatos: z.array(z.enum(FORMATOS)).min(1),
+  plataformas: z.array(z.enum(PLATAFORMAS)).min(1),
+  reutiliza: z
+    .array(z.string().regex(/^(activos|capturas)\/[^/]+$/))
+    .describe("archivos de la base que se usan tal cual todos los días (la presentadora, capturas); lo demás se genera de nuevo"),
+});
+export const Rutina = z
+  .strictObject({
+    version: z.literal(1),
+    cliente: slug,
+    activa: z.boolean().describe("false hasta que el cliente la apruebe; npm run rutina hoy no abre nada si está en false"),
+    aprobada: z
+      .strictObject({ por: texto(80), fecha })
+      .nullable()
+      .describe("quién aprobó la rutina y cuándo"),
+    dias: z.array(z.enum(DIAS)).min(1).describe("qué días se produce"),
+    hora_aviso: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/)
+      .nullable()
+      .describe("hora local a la que se arma el borrador del día y se avisa (recordatorio o tarea programada); null = sin aviso"),
+    piezas: z.array(PiezaRutina).min(1).max(5),
+    temas: z.array(texto(120)).min(1).describe("pilares o temas que rotan día a día; los define la empresa"),
+    presupuesto_diario_usd: z
+      .number()
+      .min(0)
+      .nullable()
+      .describe("tope de gasto por día (créditos de voz, clips, imágenes); no reemplaza el OK de cada gasto. null = sin tope"),
+    aprobacion_copy: z
+      .enum(["cada_dia", "semanal"])
+      .describe("cuándo aprueba el cliente el copy: el del día, o el de toda la semana de una vez"),
+    publicacion: z
+      .enum(["entregar_mp4", "subir_en_pausa"])
+      .describe("nunca se publica sola: se entregan los MP4, o se suben a la cuenta del cliente en pausa con su OK"),
+    notas: z.string().nullable(),
+  })
+  .superRefine((r, ctx) => {
+    const ids = r.piezas.map((p) => p.id);
+    ids.forEach((id, i) => {
+      if (ids.indexOf(id) !== i) ctx.addIssue({ code: "custom", path: ["piezas", i, "id"], message: `la pieza «${id}» está repetida` });
+    });
+    if (r.activa && !r.aprobada) ctx.addIssue({ code: "custom", path: ["aprobada"], message: "una rutina activa necesita quién la aprobó y cuándo" });
+  });
+
 export const ESQUEMAS = {
   marca: Marca,
   brief: Brief,
@@ -360,4 +417,5 @@ export const ESQUEMAS = {
   "plan-avatar": PlanAvatar,
   activos: Activos,
   requisitos: Requisitos,
+  rutina: Rutina,
 };

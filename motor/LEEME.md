@@ -21,6 +21,10 @@ npm run voz -- mi-cliente/mi-video texto
 npm run clip -- mi-cliente/mi-video todas   # costo estimado de los clips de avatar (no gasta)
 npm run clip -- mi-cliente/mi-video gancho --gastar   # genera un clip en fal.ai (cobra; FAL_KEY)
 npm run clip -- mi-cliente/mi-video gancho registrar --video clip.mp4 --herramienta "Google Flow"
+npm run rutina -- mi-cliente proponer     # rutina diaria desde los videos terminados (paso 9)
+npm run rutina -- mi-cliente aprobar --por "Nombre"
+npm run rutina -- mi-cliente hoy          # abre los trabajos del día (--hasta para la semana)
+npm run rutina -- mi-cliente estado       # en qué paso está cada día, gasto y ganchos usados
 npm run esquemas                         # exporta ../esquemas/*.schema.json
 ```
 
@@ -38,10 +42,11 @@ npm run esquemas                         # exporta ../esquemas/*.schema.json
 | `scripts/validar.mjs` | Validación de un trabajo |
 | `scripts/render.mjs`, `qc.mjs` | Render y control de calidad |
 | `scripts/clip.mjs` | Clips de avatar y b-roll: estima, genera en fal.ai, retoma o registra, y anota en `activos.json` |
+| `scripts/rutina.mjs` | Rutina diaria de cada empresa: propone, aprueba, abre los trabajos del día y muestra el estado |
 | `public/sonidos/` | Efectos generados con fórmulas fijas (`sonidos.json` tiene recetas y hashes) |
 | `public/musica/` | Pistas con licencia anotada en `LICENCIAS.md` |
 | `public/actual/` | Se rearma en cada render con los archivos del trabajo; no se edita |
-| `ejemplos/` | Specs y plan de partida para `npm run nuevo` |
+| `ejemplos/` | Specs, plan y montaje de partida para `npm run nuevo`, y un ejemplo de `rutina.json` |
 
 ## Por qué el mismo spec da el mismo video
 
